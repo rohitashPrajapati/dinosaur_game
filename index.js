@@ -2,6 +2,7 @@ import Player from "./Player.js";
 import Ground from "./Ground.js";
 import CactiController from "./CactiController.js";
 import Score from "./Score.js";
+import Coin from "./Coin.js";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -30,6 +31,9 @@ let player = null;
 let ground = null;
 let cactiController = null;
 let score = null;
+let coins = [];
+let coinSpawnTimer = 0;
+const COIN_SPAWN_INTERVAL = 2000; // ms
 
 let scaleRatio = null;
 let previousTime = null;
@@ -82,6 +86,8 @@ function createSprites() {
   );
 
   score = new Score(ctx, scaleRatio);
+  coins = [];
+  coinSpawnTimer = 0;
 }
 
 function setScreen() {
@@ -146,6 +152,8 @@ function reset() {
   cactiController.reset();
   score.reset();
   gameSpeed = GAME_SPEED_START;
+  coins = [];
+  coinSpawnTimer = 0;
 }
 
 function showStartGameText() {
@@ -166,6 +174,17 @@ function clearScreen() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
+function spawnCoin() {
+  // Coin appears in air, random x and y
+  // Adjust for new coin size (150)
+  const coinSize = 150;
+  const minY = 10 * scaleRatio;
+  const maxY = GAME_HEIGHT * scaleRatio - coinSize - 50 * scaleRatio;
+  const y = Math.random() * (maxY - minY) + minY;
+  const x = GAME_WIDTH * scaleRatio + coinSize; // spawn just off screen
+  coins.push(new Coin(x, y));
+}
+
 function gameLoop(currentTime) {
   if (previousTime === null) {
     previousTime = currentTime;
@@ -184,6 +203,27 @@ function gameLoop(currentTime) {
     player.update(gameSpeed, frameTimeDelta);
     score.update(frameTimeDelta);
     updateGameSpeed(frameTimeDelta);
+
+    // Coin spawn logic
+    coinSpawnTimer += frameTimeDelta;
+    if (coinSpawnTimer > COIN_SPAWN_INTERVAL) {
+      spawnCoin();
+      coinSpawnTimer = 0;
+    }
+
+    // Update coins
+    coins.forEach((coin) => coin.update(gameSpeed, frameTimeDelta, GROUND_AND_CACTUS_SPEED, scaleRatio));
+
+    // Collision detection
+    coins.forEach((coin) => {
+      if (coin.isColliding(player) && !coin.collected) {
+        coin.collect();
+        score.score += 100;
+      }
+    });
+
+    // Remove invisible coins
+    coins = coins.filter((coin) => coin.visible);
   }
 
   if (!gameOver && cactiController.collideWith(player)) {
@@ -196,6 +236,7 @@ function gameLoop(currentTime) {
   ground.draw();
   cactiController.draw();
   player.draw();
+  coins.forEach((coin) => coin.draw(ctx));
   score.draw();
 
   if (gameOver) {
