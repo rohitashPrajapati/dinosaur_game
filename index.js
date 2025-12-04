@@ -26,7 +26,15 @@ const CACTI_CONFIG = [
   { width: 68 / 1.5, height: 70 / 1.5, image: "images/cactus_3.png" },
 ];
 
-//Game Objects
+
+// Game mode: "coin" or "sweet"
+let gameMode = "sweet"; // Change to "sweet" to switch
+const SWEET_IMAGES = [
+  "images/sweet_1.png",
+  "images/sweet_2.png",
+  "images/sweet_3.png"
+];
+
 let player = null;
 let ground = null;
 let cactiController = null;
@@ -174,15 +182,18 @@ function clearScreen() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
-function spawnCoin() {
-  // Coin appears in air, random x and y
-  // Adjust for new coin size (150)
+function spawnCoinOrSweet() {
+  // Coin or sweet appears in air, random x and y
   const coinSize = 150;
   const minY = 10 * scaleRatio;
   const maxY = GAME_HEIGHT * scaleRatio - coinSize - 50 * scaleRatio;
   const y = Math.random() * (maxY - minY) + minY;
-  const x = GAME_WIDTH * scaleRatio + coinSize; // spawn just off screen
-  coins.push(new Coin(x, y));
+  const x = GAME_WIDTH * scaleRatio + coinSize;
+  if (gameMode === "coin") {
+    coins.push(new Coin(x, y, "coin"));
+  } else {
+    coins.push(new Coin(x, y, "sweet", SWEET_IMAGES));
+  }
 }
 
 function gameLoop(currentTime) {
@@ -204,25 +215,25 @@ function gameLoop(currentTime) {
     score.update(frameTimeDelta);
     updateGameSpeed(frameTimeDelta);
 
-    // Coin spawn logic
+    // Coin/sweet spawn logic
     coinSpawnTimer += frameTimeDelta;
     if (coinSpawnTimer > COIN_SPAWN_INTERVAL) {
-      spawnCoin();
+      spawnCoinOrSweet();
       coinSpawnTimer = 0;
     }
 
-    // Update coins
+    // Update coins/sweets
     coins.forEach((coin) => coin.update(gameSpeed, frameTimeDelta, GROUND_AND_CACTUS_SPEED, scaleRatio));
 
     // Collision detection
     coins.forEach((coin) => {
       if (coin.isColliding(player) && !coin.collected) {
         coin.collect();
-        score.score += 100;
+        score.score += coin.scoreValue;
       }
     });
 
-    // Remove invisible coins
+    // Remove invisible coins/sweets
     coins = coins.filter((coin) => coin.visible);
   }
 
