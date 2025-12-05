@@ -199,9 +199,9 @@ function spawnCoinOrSweet() {
   const y = Math.random() * (maxY - minY) + minY;
   const x = GAME_WIDTH * scaleRatio + coinSize;
   if (gameMode === "coin") {
-    coins.push(new Coin(x, y, "coin"));
+    coins.push(new Coin(x, y, "coin", [], scaleRatio));
   } else {
-    coins.push(new Coin(x, y, "sweet", SWEET_IMAGES));
+    coins.push(new Coin(x, y, "sweet", SWEET_IMAGES, scaleRatio));
   }
 }
 

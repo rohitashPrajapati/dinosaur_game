@@ -1,32 +1,30 @@
 class Coin {
-  constructor(x, y, type = "coin", sweetImages = []) {
+  constructor(x, y, type = "coin", sweetImages = [], scaleRatio = 1) {
     this.x = x;
     this.y = y;
-
     this.type = type; // "coin" or "sweet"
     this.visible = true;
     this.collected = false;
     this.opacity = 1;
 
-      // Responsive size: check both width and height for mobile (portrait or landscape)
+       // Responsive size: check both width and height for mobile (portrait or landscape)
       const isMobile = window.innerWidth < 600 || window.innerHeight < 600;
-
-      if (type === "coin") {
-        this.image = new Image();
-        this.image.src = "images/coin_small.png";
-        this.scoreValue = 100;
-        this.width = isMobile ? 60 : 150;
-        this.height = isMobile ? 60 : 150;
-      } else {
-        // sweets: pick a random sweet image
-        const sweetSrc = sweetImages.length > 0 ? sweetImages[Math.floor(Math.random() * sweetImages.length)] : "images/sweet_1.png";
-        this.image = new Image();
-        this.image.src = sweetSrc;
-        this.scoreValue = 200;
-        // Responsive size for sweet
-        this.width = isMobile ? 40 : 80;
-        this.height = isMobile ? 40 : 80;
-      }
+    // Use scaleRatio for responsive sizing, like player/cactus
+    if (type === "coin") {
+      this.image = new Image();
+      this.image.src = "images/coin_small.png";
+      this.scoreValue = 100;
+      this.width = (isMobile ? 60 : 150) * scaleRatio;
+      this.height = (isMobile ? 60 : 150) * scaleRatio;
+    } else {
+      // sweets: pick a random sweet image
+      const sweetSrc = sweetImages.length > 0 ? sweetImages[Math.floor(Math.random() * sweetImages.length)] : "images/sweet_1.png";
+      this.image = new Image();
+      this.image.src = sweetSrc;
+      this.scoreValue = 200;
+      this.width = (isMobile ? 40 : 80) * scaleRatio;
+      this.height = (isMobile ? 40 : 80) * scaleRatio;
+    }
   }
 
   update(gameSpeed, frameTimeDelta, groundSpeed, scaleRatio) {
