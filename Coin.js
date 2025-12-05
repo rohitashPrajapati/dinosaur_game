@@ -24,8 +24,8 @@ class Coin {
         this.image.src = sweetSrc;
         this.scoreValue = 200;
         // Responsive size for sweet
-        this.width = isMobile ? 60 : 80;
-        this.height = isMobile ? 60 : 80;
+        this.width = isMobile ? 40 : 80;
+        this.height = isMobile ? 40 : 80;
       }
   }
 

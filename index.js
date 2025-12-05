@@ -178,7 +178,11 @@ function updateGameSpeed(frameTimeDelta) {
 }
 
 function clearScreen() {
-  ctx.fillStyle = "white";
+  // Create vertical gradient: sky blue at top, white at ground
+  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  gradient.addColorStop(0, "#87ceeb"); // top: sky blue
+  gradient.addColorStop(1, "#ffffff"); // bottom: white
+  ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
