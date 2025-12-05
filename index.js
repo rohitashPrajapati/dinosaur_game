@@ -32,7 +32,12 @@ let gameMode = "sweet"; // Change to "sweet" to switch
 const SWEET_IMAGES = [
   "images/sweet_1.png",
   "images/sweet_2.png",
-  "images/sweet_3.png"
+  "images/sweet_3.png",
+  "images/sweet_4.png",
+  "images/sweet_5.png",
+  "images/sweet_6.png",
+  "images/sweet_7.png",
+  "images/sweet_8.png",
 ];
 
 let player = null;
