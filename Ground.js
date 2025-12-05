@@ -19,23 +19,25 @@ export default class Ground {
   }
 
   draw() {
-    this.ctx.drawImage(
-      this.groundImage,
-      this.x,
-      this.y,
-      this.width,
-      this.height
-    );
+    // Draw ground image in 'contain' mode (preserve aspect ratio)
+    const imgAspect = this.groundImage.width / this.groundImage.height || 1;
+    const drawHeight = this.height;
+    const drawWidth = drawHeight * imgAspect;
 
-    this.ctx.drawImage(
-      this.groundImage,
-      this.x + this.width,
-      this.y,
-      this.width,
-      this.height
-    );
+    // Repeat ground image to fill the ground width
+    let drawX = this.x;
+    while (drawX < this.canvas.width) {
+      this.ctx.drawImage(
+        this.groundImage,
+        drawX,
+        this.y,
+        drawWidth,
+        drawHeight
+      );
+      drawX += drawWidth;
+    }
 
-    if (this.x < -this.width) {
+    if (this.x < -drawWidth) {
       this.x = 0;
     }
   }
