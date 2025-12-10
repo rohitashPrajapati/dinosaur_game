@@ -4,8 +4,17 @@ import CactiController from "./CactiController.js";
 import Score from "./Score.js";
 import Coin from "./Coin.js";
 
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
+
+// Preload background image
+const backgroundImage = new Image();
+backgroundImage.src = "images/background.png";
+let backgroundLoaded = false;
+backgroundImage.onload = () => {
+  backgroundLoaded = true;
+};
 
 const GAME_SPEED_START = 1; // 1.0
 const GAME_SPEED_INCREMENT = 0.00001;
@@ -189,6 +198,11 @@ function clearScreen() {
   gradient.addColorStop(1, "#ffffff"); // bottom: white
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw background image over the gradient, covering the whole canvas
+  if (backgroundLoaded) {
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+  }
 }
 
 function spawnCoinOrSweet() {
