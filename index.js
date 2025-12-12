@@ -4,8 +4,10 @@ import CactiController from "./CactiController.js";
 import Score from "./Score.js";
 import Coin from "./Coin.js";
 
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
+
 
 const GAME_SPEED_START = 1; // 1.0
 const GAME_SPEED_INCREMENT = 0.00001;
@@ -19,6 +21,18 @@ const MIN_JUMP_HEIGHT = 150;
 const GROUND_WIDTH = 2400;
 const GROUND_HEIGHT = 24;
 const GROUND_AND_CACTUS_SPEED = 0.5;
+
+// Preload background image
+const backgroundImage = new Image();
+backgroundImage.src = "images/background.png";
+let backgroundLoaded = false;
+backgroundImage.onload = () => {
+  backgroundLoaded = true;
+};
+
+// Background animation variables
+let backgroundX = 0;
+let backgroundSpeed = GROUND_AND_CACTUS_SPEED;
 
 const CACTI_CONFIG = [
   { width: 48 / 1.5, height: 100 / 1.5, image: "images/cactus_1.png" },
@@ -80,6 +94,8 @@ function createSprites() {
     GROUND_AND_CACTUS_SPEED,
     scaleRatio
   );
+  // Hide the ground image (do not remove)
+  ground.visible = false;
 
   const cactiImages = CACTI_CONFIG.map((cactus) => {
     const image = new Image();
@@ -189,6 +205,13 @@ function clearScreen() {
   gradient.addColorStop(1, "#ffffff"); // bottom: white
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw background image in a loop (position updated in gameLoop)
+  if (backgroundLoaded) {
+    const bgWidth = canvas.width;
+    ctx.drawImage(backgroundImage, backgroundX, 0, bgWidth, canvas.height);
+    ctx.drawImage(backgroundImage, backgroundX + bgWidth, 0, bgWidth, canvas.height);
+  }
 }
 
 function spawnCoinOrSweet() {
@@ -205,6 +228,8 @@ function spawnCoinOrSweet() {
   }
 }
 
+
+
 function gameLoop(currentTime) {
   if (previousTime === null) {
     previousTime = currentTime;
@@ -213,6 +238,15 @@ function gameLoop(currentTime) {
   }
   const frameTimeDelta = currentTime - previousTime;
   previousTime = currentTime;
+
+  // Only update background position if game is running
+  if (!gameOver && !waitingToStart && backgroundLoaded) {
+    backgroundX -= gameSpeed * frameTimeDelta * backgroundSpeed * scaleRatio * 0.5;
+    const bgWidth = canvas.width;
+    if (backgroundX <= -bgWidth) {
+      backgroundX += bgWidth;
+    }
+  }
 
   clearScreen();
 
