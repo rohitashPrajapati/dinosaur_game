@@ -34,7 +34,8 @@ export default class CactiController {
     const index = this.getRandomNumber(0, this.cactiImages.length - 1);
     const cactusImage = this.cactiImages[index];
     const x = this.canvas.width * 1.5;
-    const BOTTOM_OFFSET = 10 * this.scaleRatio;
+    // Slightly reduce the bottom offset
+    const BOTTOM_OFFSET = 8 * this.scaleRatio;
     const y = this.canvas.height - cactusImage.height - BOTTOM_OFFSET;
     const cactus = new Cactus(
       this.ctx,
