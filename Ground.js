@@ -12,6 +12,9 @@ export default class Ground {
 
     this.groundImage = new Image();
     this.groundImage.src = "images/ground.png";
+
+    // Flag to control visibility
+    this.visible = true;
   }
 
   update(gameSpeed, frameTimeDelta) {
@@ -19,6 +22,7 @@ export default class Ground {
   }
 
   draw() {
+    if (!this.visible) return;
     // Draw ground image in 'contain' mode (preserve aspect ratio)
     const imgAspect = this.groundImage.width / this.groundImage.height || 1;
     const drawHeight = this.height;
