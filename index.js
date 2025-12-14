@@ -62,7 +62,7 @@ let cactiController = null;
 let score = null;
 let coins = [];
 let coinSpawnTimer = 0;
-const COIN_SPAWN_INTERVAL = 2000; // ms
+const COIN_SPAWN_INTERVAL = 1000; // ms (reduced interval for more sweets)
 
 let scaleRatio = null;
 let previousTime = null;
@@ -224,12 +224,66 @@ function spawnCoinOrSweet() {
   const coinSize = 150;
   const minY = 10 * scaleRatio;
   const maxY = GAME_HEIGHT * scaleRatio - coinSize - 50 * scaleRatio;
-  const y = Math.random() * (maxY - minY) + minY;
   const x = GAME_WIDTH * scaleRatio + coinSize;
-  if (gameMode === "coin") {
-    coins.push(new Coin(x, y, "coin", [], scaleRatio));
+
+  // Helper to check if a sweet would overlap any cactus
+  function isOverlappingCactus(sweetX, sweetY, sweetW, sweetH) {
+    if (!cactiController || !cactiController.getCactusRects) return false;
+    const cacti = cactiController.getCactusRects();
+    return cacti.some(cactus =>
+      sweetX < cactus.x + cactus.width &&
+      sweetX + sweetW > cactus.x &&
+      sweetY < cactus.y + cactus.height &&
+      sweetY + sweetH > cactus.y
+    );
+  }
+
+  // Use a single random value for all sweet spawn probabilities
+  const sweetRand = Math.random();
+  if (gameMode === "sweet") {
+    if (sweetRand < 0.15) {
+      // 15% chance to spawn a row of sweets on the ground at cactus level
+      const groundCount = Math.floor(Math.random() * 2) + 2; // 2 or 3 sweets
+      const groundY = GAME_HEIGHT * scaleRatio - coinSize - 24 * scaleRatio; // 24 is ground height
+      for (let i = 0; i < groundCount; i++) {
+        const groundX = x + i * (coinSize * 0.8);
+        if (!isOverlappingCactus(groundX, groundY, coinSize, coinSize)) {
+          coins.push(new Coin(groundX, groundY, "sweet", SWEET_IMAGES, scaleRatio));
+        }
+      }
+    } else if (sweetRand < 0.27) {
+      // Next 12%: random group (2-3) of sweets on ground at cactus level
+      const groundCount = Math.floor(Math.random() * 2) + 2; // 2 or 3 sweets
+      const groundY = GAME_HEIGHT * scaleRatio - coinSize - 4 * scaleRatio;
+      for (let i = 0; i < groundCount; i++) {
+        const groundX = x + i * (coinSize * 0.8);
+        if (!isOverlappingCactus(groundX, groundY, coinSize, coinSize)) {
+          coins.push(new Coin(groundX, groundY, "sweet", SWEET_IMAGES, scaleRatio));
+        }
+      }
+    } else if (sweetRand < 0.645) {
+      // Next 37.5%: horizontal row group of sweets
+      const rowCount = Math.floor(Math.random() * 2) + 3; // 3 or 4 sweets in a row
+      const rowY = Math.random() * (maxY - minY) + minY;
+      for (let i = 0; i < rowCount; i++) {
+        const rowX = x + i * (coinSize * 0.8); // 80% overlap for nice spacing
+        if (!isOverlappingCactus(rowX, rowY, coinSize, coinSize)) {
+          coins.push(new Coin(rowX, rowY, "sweet", SWEET_IMAGES, scaleRatio));
+        }
+      }
+    } else {
+      // Otherwise: single sweet at random y (not a group)
+      const y = Math.random() * (maxY - minY) + minY;
+      if (!isOverlappingCactus(x, y, coinSize, coinSize)) {
+        coins.push(new Coin(x, y, "sweet", SWEET_IMAGES, scaleRatio));
+      }
+    }
   } else {
-    coins.push(new Coin(x, y, "sweet", SWEET_IMAGES, scaleRatio));
+    // Coin mode logic (unchanged)
+    const y = Math.random() * (maxY - minY) + minY;
+    if (!isOverlappingCactus(x, y, coinSize, coinSize)) {
+      coins.push(new Coin(x, y, "coin", [], scaleRatio));
+    }
   }
 }
 

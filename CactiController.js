@@ -1,6 +1,16 @@
+
 import Cactus from "./Cactus.js";
 
 export default class CactiController {
+  // Returns an array of {x, y, width, height} for all cacti
+  getCactusRects() {
+    return this.cacti.map(cactus => ({
+      x: cactus.x,
+      y: cactus.y,
+      width: cactus.width,
+      height: cactus.height
+    }));
+  }
   CACTUS_INTERVAL_MIN = 500;
   CACTUS_INTERVAL_MAX = 2000;
 
