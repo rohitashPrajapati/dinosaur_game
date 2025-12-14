@@ -19,7 +19,7 @@ export default class Player {
     this.scaleRatio = scaleRatio;
 
     this.x = 10 * scaleRatio;
-    const BOTTOM_OFFSET = 10 * scaleRatio;
+    const BOTTOM_OFFSET = 31 * scaleRatio;
     this.y = this.canvas.height - this.height - BOTTOM_OFFSET;
     this.yStandingPosition = this.y;
 

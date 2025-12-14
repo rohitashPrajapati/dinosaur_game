@@ -22,8 +22,8 @@ class Coin {
       this.image = new Image();
       this.image.src = sweetSrc;
       this.scoreValue = 200;
-      this.width = (isMobile ? 40 : 40) * scaleRatio;
-      this.height = (isMobile ? 40 : 40) * scaleRatio;
+      this.width = (isMobile ? 40 : 30) * scaleRatio;
+      this.height = (isMobile ? 40 : 30) * scaleRatio;
     }
   }
 

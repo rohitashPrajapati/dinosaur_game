@@ -14,8 +14,10 @@ const GAME_SPEED_INCREMENT = 0.00001;
 
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 200;
-const PLAYER_WIDTH = 67 / 1.5; //58
-const PLAYER_HEIGHT = 100 / 1.5; //62
+// const PLAYER_WIDTH = 67 / 1.5; //58
+// const PLAYER_HEIGHT = 100 / 1.5; //62
+const PLAYER_WIDTH = 67 / 1.6; //58
+const PLAYER_HEIGHT = 100 / 1.6; //62
 const MAX_JUMP_HEIGHT = GAME_HEIGHT;
 const MIN_JUMP_HEIGHT = 150;
 const GROUND_WIDTH = 2400;
@@ -201,16 +203,19 @@ function updateGameSpeed(frameTimeDelta) {
 function clearScreen() {
   // Create vertical gradient: sky blue at top, white at ground
   const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  gradient.addColorStop(0, "#87ceeb"); // top: sky blue
-  gradient.addColorStop(1, "#ffffff"); // bottom: white
+  // gradient.addColorStop(0, "#87ceeb"); // top: sky blue
+  gradient.addColorStop(0, "#f7fffe"); // top: sky blue
+  gradient.addColorStop(1, "#f7fffe"); // bottom: white
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Draw background image in a loop (position updated in gameLoop)
   if (backgroundLoaded) {
     const bgWidth = canvas.width;
-    ctx.drawImage(backgroundImage, backgroundX, 0, bgWidth, canvas.height);
-    ctx.drawImage(backgroundImage, backgroundX + bgWidth, 0, bgWidth, canvas.height);
+    const marginTop = 30 * scaleRatio; // 30px margin top, adjust as needed
+    const bgHeight = canvas.height - marginTop;
+    ctx.drawImage(backgroundImage, backgroundX, marginTop, bgWidth, bgHeight);
+    ctx.drawImage(backgroundImage, backgroundX + bgWidth -1, marginTop, bgWidth, bgHeight);
   }
 }
 
