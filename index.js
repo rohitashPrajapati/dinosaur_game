@@ -151,9 +151,39 @@ function createSprites() {
 }
 
 function setScreen() {
-  scaleRatio = getScaleRatio();
-  canvas.width = GAME_WIDTH * scaleRatio;
-  canvas.height = GAME_HEIGHT * scaleRatio;
+  // Detect mobile landscape
+  const isMobileLandscape = window.matchMedia(
+    '(orientation: landscape) and (max-width: 900px)'
+  ).matches;
+  if (isMobileLandscape) {
+    // Fill the screen, preserve aspect ratio
+    const screenW = window.innerWidth;
+    const screenH = window.innerHeight;
+    const gameAspect = GAME_WIDTH / GAME_HEIGHT;
+    const screenAspect = screenW / screenH;
+    let drawW, drawH;
+    if (screenAspect > gameAspect) {
+      // Screen is wider than game, fit by height
+      drawH = screenH;
+      drawW = drawH * gameAspect;
+    } else {
+      // Screen is taller, fit by width
+      drawW = screenW;
+      drawH = drawW / gameAspect;
+    }
+    canvas.width = GAME_WIDTH;
+    canvas.height = GAME_HEIGHT;
+    canvas.style.width = drawW + 'px';
+    canvas.style.height = drawH + 'px';
+    scaleRatio = 1;
+  } else {
+    // Desktop or portrait: scale as before
+    scaleRatio = getScaleRatio();
+    canvas.width = GAME_WIDTH * scaleRatio;
+    canvas.height = GAME_HEIGHT * scaleRatio;
+    canvas.style.width = '';
+    canvas.style.height = '';
+  }
   createSprites();
 }
 
