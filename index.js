@@ -380,23 +380,36 @@ function gameLoop(currentTime) {
     coins.forEach((coin) => coin.update(gameSpeed, frameTimeDelta, GROUND_AND_CACTUS_SPEED, scaleRatio));
 
     // Collision detection
-    // Track sweets collected in the last second
-    if (!window.sweetsCollectedTimestamps) window.sweetsCollectedTimestamps = [];
+    // Track sweets collected in the last second, and their positions
+    if (!window.sweetsCollected) window.sweetsCollected = [];
     const now = performance.now();
     coins.forEach((coin) => {
       if (coin.isColliding(player) && !coin.collected) {
         coin.collect();
         score.score += coin.scoreValue;
         if (coin.type === "sweet") {
-          window.sweetsCollectedTimestamps.push(now);
+          // Store timestamp and center position
+          window.sweetsCollected.push({
+            ts: now,
+            x: coin.x + coin.width / 2,
+            y: coin.y + coin.height / 2
+          });
         }
       }
     });
-    // Remove timestamps older than 1 second
-    window.sweetsCollectedTimestamps = window.sweetsCollectedTimestamps.filter(ts => now - ts < 1000);
-    if (window.sweetsCollectedTimestamps.length >= 3) {
-      showSweetPop();
-      window.sweetsCollectedTimestamps = [];
+    // Remove sweets older than 1 second
+    window.sweetsCollected = window.sweetsCollected.filter(obj => now - obj.ts < 1000);
+    if (window.sweetsCollected.length >= 3) {
+      // Average the last 3 positions
+      const last3 = window.sweetsCollected.slice(-3);
+      const avgX = Math.round(last3.reduce((sum, obj) => sum + obj.x, 0) / 3);
+      const avgY = Math.round(last3.reduce((sum, obj) => sum + obj.y, 0) / 3);
+      // Convert game canvas position to screen position
+      const rect = canvas.getBoundingClientRect();
+      const screenX = rect.left + avgX * (rect.width / canvas.width);
+      const screenY = rect.top + avgY * (rect.height / canvas.height);
+      showSweetPop(screenX, screenY);
+      window.sweetsCollected = [];
     }
 
     // Water Ditch collision detection (game over if player falls in)
