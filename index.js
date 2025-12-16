@@ -6,6 +6,7 @@ import Score from "./Score.js";
 import Coin from "./Coin.js";
 import WaterDitch from "./WaterDitch.js";
 import Bomb from "./Bomb.js";
+import SnailController from "./SnailController.js";
 // Water Ditch variables
 let waterDitches = [];
 let waterDitchSpawnDistance = 6000; // Start ditches after a long initial distance
@@ -78,6 +79,8 @@ let bombs = [];
 let bombSpawnTimer = 0;
 const BOMB_SPAWN_INTERVAL = 2500; // ms, adjust for frequency
 
+let snailController = null;
+
 let scaleRatio = null;
 let previousTime = null;
 let gameSpeed = GAME_SPEED_START;
@@ -135,6 +138,9 @@ function createSprites() {
   coinSpawnTimer = 0;
   bombs = [];
   bombSpawnTimer = 0;
+
+  // Snail setup
+  snailController = new SnailController(ctx, scaleRatio, GROUND_AND_CACTUS_SPEED);
 
   // Water Ditch setup
   waterDitches = [];
@@ -210,6 +216,8 @@ function reset() {
   coinSpawnTimer = 0;
   bombs = [];
   bombSpawnTimer = 0;
+  // Reset snails
+  if (snailController) snailController.reset();
   // Reset water ditches
   waterDitches = [];
   // Start ditches after a long initial distance
@@ -348,6 +356,14 @@ function gameLoop(currentTime) {
     player.update(gameSpeed, frameTimeDelta);
     score.update(frameTimeDelta);
     updateGameSpeed(frameTimeDelta);
+    // Update snails
+    if (snailController) snailController.update(gameSpeed, frameTimeDelta, scaleRatio);
+    // Snail collision detection (game over if player touches snail)
+    if (snailController && snailController.isColliding(player)) {
+      gameOver = true;
+      setupGameReset();
+      score.setHighScore();
+    }
 
     // Track total ground distance travelled
     totalDistanceTravelled += gameSpeed * frameTimeDelta * GROUND_AND_CACTUS_SPEED * scaleRatio;
@@ -492,6 +508,8 @@ function gameLoop(currentTime) {
   //Draw game objects
   ground.draw();
   cactiController.draw();
+  // Draw snails after ground/cacti, before player
+  if (snailController) snailController.draw();
   // Draw water ditches after ground/cacti, before player
   waterDitches.forEach((ditch) => ditch.draw(ctx));
   // Draw bombs before player
