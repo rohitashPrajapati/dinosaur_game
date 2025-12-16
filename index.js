@@ -356,8 +356,11 @@ function gameLoop(currentTime) {
     player.update(gameSpeed, frameTimeDelta);
     score.update(frameTimeDelta);
     updateGameSpeed(frameTimeDelta);
-    // Update snails
-    if (snailController) snailController.update(gameSpeed, frameTimeDelta, scaleRatio);
+    // Prepare cacti and bomb rects for safe placement
+    const cactiRects = cactiController && cactiController.getCactusRects ? cactiController.getCactusRects() : [];
+    const bombRects = bombs.map(bomb => ({ x: bomb.x, y: bomb.y, width: bomb.width, height: bomb.height }));
+    // Update snails with safe placement
+    if (snailController) snailController.update(gameSpeed, frameTimeDelta, scaleRatio, cactiRects, bombRects);
     // Snail collision detection (game over if player touches snail)
     if (snailController && snailController.isColliding(player)) {
       gameOver = true;
@@ -403,31 +406,36 @@ function gameLoop(currentTime) {
       coinSpawnTimer = 0;
     }
 
-    // Bomb spawn logic
+    // Bomb spawn logic (safe placement)
     bombSpawnTimer += frameTimeDelta;
     if (bombSpawnTimer > BOMB_SPAWN_INTERVAL) {
-      // 30% chance to spawn a bomb
       if (Math.random() < 0.3) {
-        const groundY = GAME_HEIGHT * scaleRatio - 65 * scaleRatio; // 50px bomb height
-        const x = GAME_WIDTH * scaleRatio + 100; // spawn just off right
-        // Use Bomb's width/height for overlap check
+        const groundY = GAME_HEIGHT * scaleRatio - 65 * scaleRatio;
         const bombHeight = 30 * scaleRatio;
         const bombWidth = (279 / 316) * bombHeight;
-        // Require a minimum horizontal gap between bomb and any cactus
-        const MIN_BOMB_CACTUS_GAP = 80 * scaleRatio; // adjust as needed for jump
-        let canPlace = true;
-        if (cactiController && cactiController.getCactusRects) {
-          const cacti = cactiController.getCactusRects();
-          for (const cactus of cacti) {
-            const overlap = !(x + bombWidth + MIN_BOMB_CACTUS_GAP < cactus.x || x - MIN_BOMB_CACTUS_GAP > cactus.x + cactus.width);
-            if (overlap) {
-              canPlace = false;
-              break;
-            }
+        const MIN_BOMB_SAFE_GAP = 220 * scaleRatio;
+        let tryCount = 0;
+        let placed = false;
+        const cacti = cactiController && cactiController.getCactusRects ? cactiController.getCactusRects() : [];
+        while (!placed && tryCount < 10) {
+          const x = GAME_WIDTH * scaleRatio + 50 + Math.random() * 150 * scaleRatio;
+          // Check safe gap from cacti
+          const safeFromCactus = !cacti.some(cactus =>
+            Math.abs((cactus.x + cactus.width / 2) - (x + bombWidth / 2)) < MIN_BOMB_SAFE_GAP
+          );
+          // Check safe gap from snails
+          const safeFromSnail = !(snailController && snailController.snails && snailController.snails.some(snail =>
+            Math.abs((snail.x + snail.width / 2) - (x + bombWidth / 2)) < MIN_BOMB_SAFE_GAP
+          ));
+          // Check safe gap from other bombs
+          const safeFromBomb = !bombs.some(bomb =>
+            Math.abs((bomb.x + bomb.width / 2) - (x + bombWidth / 2)) < MIN_BOMB_SAFE_GAP
+          );
+          if (safeFromCactus && safeFromSnail && safeFromBomb) {
+            bombs.push(new Bomb(x, groundY, scaleRatio));
+            placed = true;
           }
-        }
-        if (canPlace) {
-          bombs.push(new Bomb(x, groundY, scaleRatio));
+          tryCount++;
         }
       }
       bombSpawnTimer = 0;
