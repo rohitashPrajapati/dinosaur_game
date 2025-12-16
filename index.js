@@ -3,6 +3,14 @@ import Ground from "./Ground.js";
 import CactiController from "./CactiController.js";
 import Score from "./Score.js";
 import Coin from "./Coin.js";
+import WaterDitch from "./WaterDitch.js";
+// Water Ditch variables
+let waterDitches = [];
+let waterDitchSpawnDistance = 6000; // Start ditches after a long initial distance
+let lastDitchSpawnDistance = 0; // Track distance at which last ditch was spawned
+let totalDistanceTravelled = 0; // Track total ground distance travelled
+const WATERDITCH_MIN_DISTANCE = 4000; // px, min distance between ditches (increased)
+const WATERDITCH_MAX_DISTANCE = 8000; // px, max distance between ditches (increased)
 
 
 const canvas = document.getElementById("game");
@@ -119,6 +127,13 @@ function createSprites() {
   score = new Score(ctx, scaleRatio);
   coins = [];
   coinSpawnTimer = 0;
+
+  // Water Ditch setup
+  waterDitches = [];
+  // Start ditches after a long initial distance
+  waterDitchSpawnDistance = 6000 * scaleRatio;
+  lastDitchSpawnDistance = 0;
+  totalDistanceTravelled = 0;
 }
 
 function setScreen() {
@@ -185,6 +200,12 @@ function reset() {
   gameSpeed = GAME_SPEED_START;
   coins = [];
   coinSpawnTimer = 0;
+  // Reset water ditches
+  waterDitches = [];
+  // Start ditches after a long initial distance
+  waterDitchSpawnDistance = 6000 * scaleRatio;
+  lastDitchSpawnDistance = 0;
+  totalDistanceTravelled = 0;
 }
 
 function showStartGameText() {
@@ -317,6 +338,36 @@ function gameLoop(currentTime) {
     score.update(frameTimeDelta);
     updateGameSpeed(frameTimeDelta);
 
+    // Track total ground distance travelled
+    totalDistanceTravelled += gameSpeed * frameTimeDelta * GROUND_AND_CACTUS_SPEED * scaleRatio;
+    // Water Ditch spawn logic: only spawn after required distance travelled since last ditch
+    if (totalDistanceTravelled - lastDitchSpawnDistance > waterDitchSpawnDistance) {
+      const groundY = GAME_HEIGHT * scaleRatio - GROUND_HEIGHT * scaleRatio;
+      const ditchX = GAME_WIDTH * scaleRatio;
+      // Check cactus positions to avoid overlap and ensure safe distance
+      const SAFE_DIST = 350 * scaleRatio; // Increased minimum safe distance between ditch and cactus
+      let canSpawn = true;
+      if (cactiController && cactiController.getCactusRects) {
+        const cactiRects = cactiController.getCactusRects();
+        for (const cactus of cactiRects) {
+          // If cactus is too close to where ditch would spawn, skip this spawn
+          if (Math.abs((cactus.x + cactus.width/2) - (ditchX + 81)) < SAFE_DIST) {
+            canSpawn = false;
+            break;
+          }
+        }
+      }
+      if (canSpawn) {
+        waterDitches.push(new WaterDitch(ditchX, groundY));
+        lastDitchSpawnDistance = totalDistanceTravelled;
+        waterDitchSpawnDistance = Math.random() * (WATERDITCH_MAX_DISTANCE - WATERDITCH_MIN_DISTANCE) + WATERDITCH_MIN_DISTANCE;
+      }
+    }
+    // Update ditches (move at ground speed)
+    waterDitches.forEach((ditch) => ditch.update(gameSpeed, frameTimeDelta, GROUND_AND_CACTUS_SPEED, scaleRatio));
+    // Remove ditches that have gone off screen
+    waterDitches = waterDitches.filter((ditch) => ditch.x + ditch.width > 0);
+
     // Coin/sweet spawn logic
     coinSpawnTimer += frameTimeDelta;
     if (coinSpawnTimer > COIN_SPAWN_INTERVAL) {
@@ -335,6 +386,16 @@ function gameLoop(currentTime) {
       }
     });
 
+    // Water Ditch collision detection (game over if player falls in)
+    for (const ditch of waterDitches) {
+      if (ditch.isColliding(player)) {
+        gameOver = true;
+        setupGameReset();
+        score.setHighScore();
+        break;
+      }
+    }
+
     // Remove invisible coins/sweets
     coins = coins.filter((coin) => coin.visible);
   }
@@ -348,6 +409,8 @@ function gameLoop(currentTime) {
   //Draw game objects
   ground.draw();
   cactiController.draw();
+  // Draw water ditches after ground/cacti, before player
+  waterDitches.forEach((ditch) => ditch.draw(ctx));
   player.draw();
   coins.forEach((coin) => coin.draw(ctx));
   score.draw();
