@@ -21,7 +21,7 @@ class WaterDitch {
 
   isColliding(player) {
     // Shrink the effective collision area for fairness
-    const COLLISION_MARGIN = 0.25; // 18% margin on each side
+    const COLLISION_MARGIN = 0.35; // 18% margin on each side
     const margin = this.width * COLLISION_MARGIN;
     const effectiveX = this.x + margin;
     const effectiveWidth = this.width - 2 * margin;

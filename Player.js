@@ -2,6 +2,7 @@ export default class Player {
   WALK_ANIMATION_TIMER = 200;
   walkAnimationTimer = this.WALK_ANIMATION_TIMER;
   dinoRunImages = [];
+  dinoRunImageIndex = 0;
 
   jumpPressed = false;
   jumpInProgress = false;
@@ -23,18 +24,27 @@ export default class Player {
     this.y = this.canvas.height - this.height - BOTTOM_OFFSET;
     this.yStandingPosition = this.y;
 
+
     this.standingStillImage = new Image();
-    this.standingStillImage.src = "images/standing_still.png";
+    this.standingStillImage.src = "images/player3.png";
+    this.jumpImage = new Image();
+    this.jumpImage.src = "images/player_jump.png";
     this.image = this.standingStillImage;
 
-    const dinoRunImage1 = new Image();
-    dinoRunImage1.src = "images/dino_run1.png";
 
-    const dinoRunImage2 = new Image();
-    dinoRunImage2.src = "images/dino_run2.png";
-
-    this.dinoRunImages.push(dinoRunImage1);
-    this.dinoRunImages.push(dinoRunImage2);
+    // Add as many run images as you want here
+    const runImageSources = [
+      "images/player1.png",
+      "images/player2.png",
+      "images/player3.png",
+      "images/player4.png",
+      "images/player5.png"
+    ];
+    runImageSources.forEach(src => {
+      const img = new Image();
+      img.src = src;
+      this.dinoRunImages.push(img);
+    });
 
     //keyboard
     window.removeEventListener("keydown", this.keydown);
@@ -75,7 +85,12 @@ export default class Player {
     this.run(gameSpeed, frameTimeDelta);
 
     if (this.jumpInProgress) {
-      this.image = this.standingStillImage;
+      this.image = this.jumpImage;
+    } else {
+      // Only set to standingStillImage if not running (prevents run() from being overridden)
+      if (!this.dinoRunImages.includes(this.image)) {
+        this.image = this.standingStillImage;
+      }
     }
 
     this.jump(frameTimeDelta);
@@ -110,17 +125,41 @@ export default class Player {
 
   run(gameSpeed, frameTimeDelta) {
     if (this.walkAnimationTimer <= 0) {
-      if (this.image === this.dinoRunImages[0]) {
-        this.image = this.dinoRunImages[1];
-      } else {
-        this.image = this.dinoRunImages[0];
-      }
+      // Cycle through all run images
+      this.dinoRunImageIndex = (this.dinoRunImageIndex + 1) % this.dinoRunImages.length;
+      this.image = this.dinoRunImages[this.dinoRunImageIndex];
       this.walkAnimationTimer = this.WALK_ANIMATION_TIMER;
     }
     this.walkAnimationTimer -= frameTimeDelta * gameSpeed;
   }
 
   draw() {
-    this.ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+    // Draw the image in 'contain' mode (preserve aspect ratio, fit inside box)
+    const img = this.image;
+    const boxWidth = this.width;
+    const boxHeight = this.height;
+    const imgAspect = img.naturalWidth / img.naturalHeight;
+    const boxAspect = boxWidth / boxHeight;
+    let drawWidth, drawHeight, offsetX, offsetY;
+    if (imgAspect > boxAspect) {
+      // Image is wider than box
+      drawWidth = boxWidth;
+      drawHeight = boxWidth / imgAspect;
+      offsetX = 0;
+      offsetY = (boxHeight - drawHeight) / 2;
+    } else {
+      // Image is taller than box
+      drawHeight = boxHeight;
+      drawWidth = boxHeight * imgAspect;
+      offsetX = (boxWidth - drawWidth) / 2;
+      offsetY = 0;
+    }
+    this.ctx.drawImage(
+      img,
+      this.x + offsetX,
+      this.y + offsetY,
+      drawWidth,
+      drawHeight
+    );
   }
 }
