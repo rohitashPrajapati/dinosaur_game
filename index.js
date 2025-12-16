@@ -5,6 +5,7 @@ import CactiController from "./CactiController.js";
 import Score from "./Score.js";
 import Coin from "./Coin.js";
 import WaterDitch from "./WaterDitch.js";
+import Bomb from "./Bomb.js";
 // Water Ditch variables
 let waterDitches = [];
 let waterDitchSpawnDistance = 6000; // Start ditches after a long initial distance
@@ -73,6 +74,10 @@ let coins = [];
 let coinSpawnTimer = 0;
 const COIN_SPAWN_INTERVAL = 1000; // ms (reduced interval for more sweets)
 
+let bombs = [];
+let bombSpawnTimer = 0;
+const BOMB_SPAWN_INTERVAL = 2500; // ms, adjust for frequency
+
 let scaleRatio = null;
 let previousTime = null;
 let gameSpeed = GAME_SPEED_START;
@@ -128,6 +133,8 @@ function createSprites() {
   score = new Score(ctx, scaleRatio);
   coins = [];
   coinSpawnTimer = 0;
+  bombs = [];
+  bombSpawnTimer = 0;
 
   // Water Ditch setup
   waterDitches = [];
@@ -201,6 +208,8 @@ function reset() {
   gameSpeed = GAME_SPEED_START;
   coins = [];
   coinSpawnTimer = 0;
+  bombs = [];
+  bombSpawnTimer = 0;
   // Reset water ditches
   waterDitches = [];
   // Start ditches after a long initial distance
@@ -284,6 +293,7 @@ function spawnCoinOrSweet() {
         }
       }
     } else if (sweetRand < 0.645) {
+
       // Next 37.5%: horizontal row group of sweets
       const rowCount = Math.floor(Math.random() * 2) + 3; // 3 or 4 sweets in a row
       const rowY = Math.random() * (maxY - minY) + minY;
@@ -369,6 +379,7 @@ function gameLoop(currentTime) {
     // Remove ditches that have gone off screen
     waterDitches = waterDitches.filter((ditch) => ditch.x + ditch.width > 0);
 
+
     // Coin/sweet spawn logic
     coinSpawnTimer += frameTimeDelta;
     if (coinSpawnTimer > COIN_SPAWN_INTERVAL) {
@@ -376,8 +387,52 @@ function gameLoop(currentTime) {
       coinSpawnTimer = 0;
     }
 
+    // Bomb spawn logic
+    bombSpawnTimer += frameTimeDelta;
+    if (bombSpawnTimer > BOMB_SPAWN_INTERVAL) {
+      // 30% chance to spawn a bomb
+      if (Math.random() < 0.3) {
+        const groundY = GAME_HEIGHT * scaleRatio - 65 * scaleRatio; // 50px bomb height
+        const x = GAME_WIDTH * scaleRatio + 100; // spawn just off right
+        // Use Bomb's width/height for overlap check
+        const bombHeight = 30 * scaleRatio;
+        const bombWidth = (279 / 316) * bombHeight;
+        // Require a minimum horizontal gap between bomb and any cactus
+        const MIN_BOMB_CACTUS_GAP = 80 * scaleRatio; // adjust as needed for jump
+        let canPlace = true;
+        if (cactiController && cactiController.getCactusRects) {
+          const cacti = cactiController.getCactusRects();
+          for (const cactus of cacti) {
+            const overlap = !(x + bombWidth + MIN_BOMB_CACTUS_GAP < cactus.x || x - MIN_BOMB_CACTUS_GAP > cactus.x + cactus.width);
+            if (overlap) {
+              canPlace = false;
+              break;
+            }
+          }
+        }
+        if (canPlace) {
+          bombs.push(new Bomb(x, groundY, scaleRatio));
+        }
+      }
+      bombSpawnTimer = 0;
+    }
+
+
     // Update coins/sweets
     coins.forEach((coin) => coin.update(gameSpeed, frameTimeDelta, GROUND_AND_CACTUS_SPEED, scaleRatio));
+    // Update bombs
+    bombs.forEach((bomb) => bomb.update(gameSpeed, frameTimeDelta, GROUND_AND_CACTUS_SPEED, scaleRatio));
+
+    // Bomb collision detection
+    for (const bomb of bombs) {
+      if (bomb.isColliding(player) && !bomb.collected && !bomb.exploding) {
+        bomb.triggerExplosion();
+        gameOver = true;
+        setupGameReset();
+        score.setHighScore();
+        break;
+      }
+    }
 
     // Collision detection
     // Track sweets collected in the last second, and their positions
@@ -424,6 +479,8 @@ function gameLoop(currentTime) {
 
     // Remove invisible coins/sweets
     coins = coins.filter((coin) => coin.visible);
+    // Only remove bombs if their explosion animation is done
+    bombs = bombs.filter((bomb) => bomb.visible || (bomb.exploding && bomb.explosionFrame < 3));
   }
 
   if (!gameOver && cactiController.collideWith(player)) {
@@ -437,6 +494,8 @@ function gameLoop(currentTime) {
   cactiController.draw();
   // Draw water ditches after ground/cacti, before player
   waterDitches.forEach((ditch) => ditch.draw(ctx));
+  // Draw bombs before player
+  bombs.forEach((bomb) => bomb.draw(ctx));
   player.draw();
   coins.forEach((coin) => coin.draw(ctx));
   score.draw();

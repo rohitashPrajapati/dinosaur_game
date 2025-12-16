@@ -1,0 +1,84 @@
+// Bomb.js
+// Handles bomb obstacle and explosion animation
+
+const BOMB_IMAGE = "images/bomb.png";
+const BOMB_EXPLOSION_IMAGES = [
+  "images/brust1.png",
+  "images/brust2.png",
+  "images/brust3.png"
+];
+
+class Bomb {
+  constructor(x, y, scaleRatio = 1) {
+    this.x = x;
+    this.y = y;
+    // Maintain bomb image aspect ratio 279:316
+    this.height = 30 * scaleRatio; // or any preferred height
+    this.width = (279 / 316) * this.height;
+    // Explosion image aspect ratio 890:813
+    this.explosionHeight = this.height;
+    this.explosionWidth = (890 / 813) * this.explosionHeight;
+    this.collected = false;
+    this.visible = true;
+    this.scaleRatio = scaleRatio;
+    this.image = new Image();
+    this.image.src = BOMB_IMAGE;
+    this.exploding = false;
+    this.explosionFrame = 0;
+    this.explosionTimer = 0;
+  }
+
+  update(gameSpeed, frameTimeDelta, groundSpeed, scaleRatio) {
+    if (!this.collected) {
+      this.x -= gameSpeed * frameTimeDelta * groundSpeed * scaleRatio;
+      // Only hide if fully off screen and not exploding
+      if (this.x + this.width < 0) {
+        this.visible = false;
+      }
+    } else if (this.exploding) {
+      this.explosionTimer += frameTimeDelta;
+      if (this.explosionTimer > 80) { // 80ms per frame
+        this.explosionFrame++;
+        this.explosionTimer = 0;
+      }
+      // Only hide after explosion animation AND off screen
+      if (this.explosionFrame >= BOMB_EXPLOSION_IMAGES.length && this.x + this.width < 0) {
+        this.visible = false;
+      }
+    }
+  }
+
+  draw(ctx) {
+    if (!this.visible) return;
+    if (this.exploding && this.explosionFrame < BOMB_EXPLOSION_IMAGES.length) {
+      const img = new Image();
+      img.src = BOMB_EXPLOSION_IMAGES[this.explosionFrame];
+      // Center the explosion on the bomb
+      const ex = this.x + (this.width - this.explosionWidth) / 2;
+      const ey = this.y + (this.height - this.explosionHeight) / 2;
+      ctx.drawImage(img, ex, ey, this.explosionWidth, this.explosionHeight);
+    } else {
+      ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+    }
+  }
+
+  triggerExplosion() {
+    this.collected = true;
+    this.exploding = true;
+    this.explosionFrame = 0;
+    this.explosionTimer = 0;
+  }
+
+  isColliding(player) {
+    return (
+      this.visible &&
+      !this.collected &&
+      player.x < this.x + this.width &&
+      player.x + player.width > this.x &&
+      player.y < this.y + this.height &&
+      player.y + player.height > this.y
+    );
+  }
+}
+
+export default Bomb;
