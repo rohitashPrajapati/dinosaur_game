@@ -1,4 +1,5 @@
 import Player from "./Player.js";
+import { showSweetPop } from "./sweetPop.js";
 import Ground from "./Ground.js";
 import CactiController from "./CactiController.js";
 import Score from "./Score.js";
@@ -379,12 +380,24 @@ function gameLoop(currentTime) {
     coins.forEach((coin) => coin.update(gameSpeed, frameTimeDelta, GROUND_AND_CACTUS_SPEED, scaleRatio));
 
     // Collision detection
+    // Track sweets collected in the last second
+    if (!window.sweetsCollectedTimestamps) window.sweetsCollectedTimestamps = [];
+    const now = performance.now();
     coins.forEach((coin) => {
       if (coin.isColliding(player) && !coin.collected) {
         coin.collect();
         score.score += coin.scoreValue;
+        if (coin.type === "sweet") {
+          window.sweetsCollectedTimestamps.push(now);
+        }
       }
     });
+    // Remove timestamps older than 1 second
+    window.sweetsCollectedTimestamps = window.sweetsCollectedTimestamps.filter(ts => now - ts < 1000);
+    if (window.sweetsCollectedTimestamps.length >= 3) {
+      showSweetPop();
+      window.sweetsCollectedTimestamps = [];
+    }
 
     // Water Ditch collision detection (game over if player falls in)
     for (const ditch of waterDitches) {
