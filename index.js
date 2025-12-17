@@ -23,8 +23,10 @@ const ctx = canvas.getContext("2d");
 const GAME_SPEED_START = 1; // 1.0
 const GAME_SPEED_INCREMENT = 0.00001;
 
-const GAME_WIDTH = 800;
-const GAME_HEIGHT = 200;
+const ORIGINAL_GAME_WIDTH = 800;
+const ORIGINAL_GAME_HEIGHT = 200;
+let GAME_WIDTH = ORIGINAL_GAME_WIDTH;
+let GAME_HEIGHT = ORIGINAL_GAME_HEIGHT;
 // const PLAYER_WIDTH = 67 / 1.5; //58
 // const PLAYER_HEIGHT = 100 / 1.5; //62
 const PLAYER_WIDTH = 67 / 1.6; //58
@@ -47,7 +49,7 @@ backgroundImage.onload = () => {
 let backgroundX = 0;
 let backgroundSpeed = GROUND_AND_CACTUS_SPEED;
 
-const CACTI_CONFIG = [
+let CACTI_CONFIG = [
   { width: 48 / 1.5, height: 100 / 1.5, image: "images/cactus_1.png" },
   { width: 98 / 1.5, height: 100 / 1.5, image: "images/cactus_2.png" },
   { width: 68 / 1.5, height: 70 / 1.5, image: "images/cactus_3.png" },
@@ -150,16 +152,31 @@ function createSprites() {
   totalDistanceTravelled = 0;
 }
 
-function setScreen() {
-  // Detect mobile landscape
-  const isMobileLandscape = window.matchMedia(
+let IS_MOBILE_LANDSCAPE = false;
+
+function isMobileLandscape() {
+  return /Mobi|Android/i.test(navigator.userAgent) && window.matchMedia(
     '(orientation: landscape) and (max-width: 900px)'
   ).matches;
-  if (isMobileLandscape) {
-    // Fill the screen as much as possible while maintaining aspect ratio and sharpness
+}
+
+function setScreen() {
+  IS_MOBILE_LANDSCAPE = isMobileLandscape();
+  if (IS_MOBILE_LANDSCAPE) {
+    // Reduce cactus size for mobile landscape
+    CACTI_CONFIG = [
+      { width: 48 / 1.6, height: 100 / 1.6, image: "images/cactus_1.png" },
+      { width: 98 / 1.6, height: 100 / 1.6, image: "images/cactus_2.png" },
+      { width: 68 / 1.6, height: 70 / 1.6, image: "images/cactus_3.png" },
+    ];
+    // Dynamically set GAME_WIDTH to better match device aspect ratio
     const dpr = window.devicePixelRatio || 1;
     const screenW = window.innerWidth;
     const screenH = window.innerHeight;
+    // Use a 2.5:1 ratio or as close as possible to screen
+    GAME_HEIGHT = ORIGINAL_GAME_HEIGHT;
+    GAME_WIDTH = Math.min(Math.round(screenW * 0.95), Math.round(GAME_HEIGHT * 2.5));
+    // Fill the screen as much as possible while maintaining aspect ratio and sharpness
     const gameAspect = GAME_WIDTH / GAME_HEIGHT;
     const screenAspect = screenW / screenH;
     let cssW, cssH, scale;
@@ -179,7 +196,15 @@ function setScreen() {
     ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
     ctx.translate((canvas.width - GAME_WIDTH * scaleRatio) / 2, (canvas.height - GAME_HEIGHT * scaleRatio) / 2);
   } else {
-    // Desktop or portrait: scale as before
+    // Restore cactus size for desktop/portrait
+    CACTI_CONFIG = [
+      { width: 48 / 1.5, height: 100 / 1.5, image: "images/cactus_1.png" },
+      { width: 98 / 1.5, height: 100 / 1.5, image: "images/cactus_2.png" },
+      { width: 68 / 1.5, height: 70 / 1.5, image: "images/cactus_3.png" },
+    ];
+    // Desktop or portrait: use original game size
+    GAME_WIDTH = ORIGINAL_GAME_WIDTH;
+    GAME_HEIGHT = ORIGINAL_GAME_HEIGHT;
     scaleRatio = getScaleRatio();
     canvas.width = GAME_WIDTH * scaleRatio;
     canvas.height = GAME_HEIGHT * scaleRatio;
@@ -218,11 +243,24 @@ function getScaleRatio() {
 }
 
 function showGameOver() {
-  const fontSize = 70 * scaleRatio;
-  ctx.font = `${fontSize}px Verdana`;
-  ctx.fillStyle = "grey";
-  const x = canvas.width / 4.5;
-  const y = canvas.height / 2;
+  let fontSize, x, y;
+  if (IS_MOBILE_LANDSCAPE) {
+    fontSize = 32 * scaleRatio;
+    ctx.font = `${fontSize}px Verdana`;
+    ctx.fillStyle = "grey";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    x = canvas.width / 2;
+    y = canvas.height / 2;
+  } else {
+    fontSize = 70 * scaleRatio;
+    ctx.font = `${fontSize}px Verdana`;
+    ctx.fillStyle = "grey";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    x = canvas.width / 4.5;
+    y = canvas.height / 2;
+  }
   ctx.fillText("GAME OVER", x, y);
 }
 
@@ -263,9 +301,17 @@ function showStartGameText() {
   const fontSize = 40 * scaleRatio;
   ctx.font = `${fontSize}px Verdana`;
   ctx.fillStyle = "grey";
-  const x = canvas.width / 14;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  let text;
+  if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    text = "Tap to start";
+  } else {
+    text = "Press Space to Start";
+  }
+  const x = canvas.width / 2;
   const y = canvas.height / 2;
-  ctx.fillText("Tap Screen or Press Space To Start", x, y);
+  ctx.fillText(text, x, y);
 }
 
 function updateGameSpeed(frameTimeDelta) {
@@ -298,64 +344,126 @@ function spawnCoinOrSweet() {
   const maxY = GAME_HEIGHT * scaleRatio - coinSize - 50 * scaleRatio;
   const x = GAME_WIDTH * scaleRatio + coinSize;
 
-  // Helper to check if a sweet would overlap any cactus
-  function isOverlappingCactus(sweetX, sweetY, sweetW, sweetH) {
-    if (!cactiController || !cactiController.getCactusRects) return false;
-    const cacti = cactiController.getCactusRects();
-    return cacti.some(cactus =>
-      sweetX < cactus.x + cactus.width &&
-      sweetX + sweetW > cactus.x &&
-      sweetY < cactus.y + cactus.height &&
-      sweetY + sweetH > cactus.y
-    );
+  // Helper to check if a sweet would overlap any obstacle or sweet
+  function isOverlappingAny(sweetX, sweetY, sweetW, sweetH) {
+    // Check cacti
+    if (cactiController && cactiController.getCactusRects) {
+      const cacti = cactiController.getCactusRects();
+      if (cacti.some(cactus =>
+        sweetX < cactus.x + cactus.width &&
+        sweetX + sweetW > cactus.x &&
+        sweetY < cactus.y + cactus.height &&
+        sweetY + sweetH > cactus.y
+      )) return true;
+    }
+    // Check bombs
+    if (bombs.some(bomb =>
+      sweetX < bomb.x + bomb.width &&
+      sweetX + sweetW > bomb.x &&
+      sweetY < bomb.y + bomb.height &&
+      sweetY + sweetH > bomb.y
+    )) return true;
+    // Check snails
+    if (snailController && snailController.snails) {
+      if (snailController.snails.some(snail =>
+        sweetX < snail.x + snail.width &&
+        sweetX + sweetW > snail.x &&
+        sweetY < snail.y + snail.height &&
+        sweetY + sweetH > snail.y
+      )) return true;
+    }
+    // Check water ditches
+    if (waterDitches.some(ditch =>
+      sweetX < ditch.x + ditch.width &&
+      sweetX + sweetW > ditch.x &&
+      sweetY < ditch.y + ditch.height &&
+      sweetY + sweetH > ditch.y
+    )) return true;
+    // Check other sweets
+    if (coins.some(coin =>
+      coin.visible &&
+      sweetX < coin.x + coin.width &&
+      sweetX + sweetW > coin.x &&
+      sweetY < coin.y + coin.height &&
+      sweetY + sweetH > coin.y
+    )) return true;
+    return false;
   }
 
   // Use a single random value for all sweet spawn probabilities
   const sweetRand = Math.random();
   if (gameMode === "sweet") {
+    const sweetsSpaceBetween = IS_MOBILE_LANDSCAPE ? 30 : 0;
+    const MAX_TRIES = 10;
     if (sweetRand < 0.15) {
       // 15% chance to spawn a row of sweets on the ground at cactus level
       const groundCount = Math.floor(Math.random() * 2) + 2; // 2 or 3 sweets
       const groundY = GAME_HEIGHT * scaleRatio - coinSize - 24 * scaleRatio; // 24 is ground height
       for (let i = 0; i < groundCount; i++) {
-        const groundX = x + i * (coinSize * 0.8);
-        if (!isOverlappingCactus(groundX, groundY, coinSize, coinSize)) {
-          coins.push(new Coin(groundX, groundY, "sweet", SWEET_IMAGES, scaleRatio));
+        let tries = 0;
+        let groundX;
+        do {
+          groundX = x + i * (coinSize * 0.8) + (Math.random() * 20 - 10);
+          tries++;
+        } while (isOverlappingAny(groundX, groundY, coinSize, coinSize) && tries < MAX_TRIES);
+        if (tries < MAX_TRIES) {
+          coins.push(new Coin(groundX + (sweetsSpaceBetween * i), groundY, "sweet", SWEET_IMAGES, scaleRatio));
         }
       }
     } else if (sweetRand < 0.27) {
       // Next 12%: random group (2-3) of sweets on ground at cactus level
       const groundCount = Math.floor(Math.random() * 2) + 2; // 2 or 3 sweets
-      const groundY = GAME_HEIGHT * scaleRatio - coinSize - 4 * scaleRatio;
+      const groundY = GAME_HEIGHT * scaleRatio - coinSize - (IS_MOBILE_LANDSCAPE ? 25 : 4) * scaleRatio;
       for (let i = 0; i < groundCount; i++) {
-        const groundX = x + i * (coinSize * 0.8);
-        if (!isOverlappingCactus(groundX, groundY, coinSize, coinSize)) {
-          coins.push(new Coin(groundX, groundY, "sweet", SWEET_IMAGES, scaleRatio));
+        let tries = 0;
+        let groundX;
+        do {
+          groundX = x + i * (coinSize * 0.8) + (Math.random() * 20 - 10);
+          tries++;
+        } while (isOverlappingAny(groundX, groundY, coinSize, coinSize) && tries < MAX_TRIES);
+        if (tries < MAX_TRIES) {
+          coins.push(new Coin(groundX + (sweetsSpaceBetween * i), groundY, "sweet", SWEET_IMAGES, scaleRatio));
         }
       }
     } else if (sweetRand < 0.645) {
-
       // Next 37.5%: horizontal row group of sweets
       const rowCount = Math.floor(Math.random() * 2) + 3; // 3 or 4 sweets in a row
       const rowY = Math.random() * (maxY - minY) + minY;
       for (let i = 0; i < rowCount; i++) {
-        const rowX = x + i * (coinSize * 0.8); // 80% overlap for nice spacing
-        if (!isOverlappingCactus(rowX, rowY, coinSize, coinSize)) {
-          coins.push(new Coin(rowX, rowY, "sweet", SWEET_IMAGES, scaleRatio));
+        let tries = 0;
+        let rowX;
+        do {
+          rowX = x + i * (coinSize * 0.8) + (Math.random() * 20 - 10);
+          tries++;
+        } while (isOverlappingAny(rowX, rowY, coinSize, coinSize) && tries < MAX_TRIES);
+        if (tries < MAX_TRIES) {
+          coins.push(new Coin(rowX + (sweetsSpaceBetween * i), rowY, "sweet", SWEET_IMAGES, scaleRatio));
         }
       }
     } else {
       // Otherwise: single sweet at random y (not a group)
-      const y = Math.random() * (maxY - minY) + minY;
-      if (!isOverlappingCactus(x, y, coinSize, coinSize)) {
-        coins.push(new Coin(x, y, "sweet", SWEET_IMAGES, scaleRatio));
+      let tries = 0;
+      let y, tryX;
+      do {
+        y = Math.random() * (maxY - minY) + minY;
+        tryX = x + (Math.random() * 20 - 10);
+        tries++;
+      } while (isOverlappingAny(tryX, y, coinSize, coinSize) && tries < MAX_TRIES);
+      if (tries < MAX_TRIES) {
+        coins.push(new Coin(tryX, y, "sweet", SWEET_IMAGES, scaleRatio));
       }
     }
   } else {
     // Coin mode logic (unchanged)
-    const y = Math.random() * (maxY - minY) + minY;
-    if (!isOverlappingCactus(x, y, coinSize, coinSize)) {
-      coins.push(new Coin(x, y, "coin", [], scaleRatio));
+    let tries = 0;
+    let y, tryX;
+    do {
+      y = Math.random() * (maxY - minY) + minY;
+      tryX = x + (Math.random() * 20 - 10);
+      tries++;
+    } while (isOverlappingAny(tryX, y, coinSize, coinSize) && tries < 10);
+    if (tries < 10) {
+      coins.push(new Coin(tryX, y, "coin", [], scaleRatio));
     }
   }
 }
@@ -392,8 +500,10 @@ function gameLoop(currentTime) {
     // Prepare cacti and bomb rects for safe placement
     const cactiRects = cactiController && cactiController.getCactusRects ? cactiController.getCactusRects() : [];
     const bombRects = bombs.map(bomb => ({ x: bomb.x, y: bomb.y, width: bomb.width, height: bomb.height }));
+    const ditchRects = waterDitches.map(ditch => ({ x: ditch.x, y: ditch.y, width: ditch.width, height: ditch.height }));
+    const sweetRects = coins.map(coin => ({ x: coin.x, y: coin.y, width: coin.width, height: coin.height }));
     // Update snails with safe placement
-    if (snailController) snailController.update(gameSpeed, frameTimeDelta, scaleRatio, cactiRects, bombRects);
+    if (snailController) snailController.update(gameSpeed, frameTimeDelta, scaleRatio, cactiRects, bombRects, ditchRects, sweetRects);
     // Snail collision detection (game over if player touches snail)
     if (snailController && snailController.isColliding(player)) {
       gameOver = true;
@@ -407,21 +517,44 @@ function gameLoop(currentTime) {
     if (totalDistanceTravelled - lastDitchSpawnDistance > waterDitchSpawnDistance) {
       const groundY = GAME_HEIGHT * scaleRatio - GROUND_HEIGHT * scaleRatio;
       const ditchX = GAME_WIDTH * scaleRatio;
-      // Check cactus positions to avoid overlap and ensure safe distance
-      const SAFE_DIST = 350 * scaleRatio; // Increased minimum safe distance between ditch and cactus
+      // Check all obstacles for overlap and safe distance
+      const SAFE_DIST = 350 * scaleRatio; // Minimum safe distance between ditch and any obstacle
       let canSpawn = true;
+      // Check cactus
       if (cactiController && cactiController.getCactusRects) {
         const cactiRects = cactiController.getCactusRects();
         for (const cactus of cactiRects) {
-          // If cactus is too close to where ditch would spawn, skip this spawn
           if (Math.abs((cactus.x + cactus.width/2) - (ditchX + 81)) < SAFE_DIST) {
             canSpawn = false;
             break;
           }
         }
       }
+      // Check bombs
+      for (const bomb of bombs) {
+        if (Math.abs((bomb.x + bomb.width/2) - (ditchX + 81)) < SAFE_DIST) {
+          canSpawn = false;
+          break;
+        }
+      }
+      // Check snails
+      if (snailController && snailController.snails) {
+        for (const snail of snailController.snails) {
+          if (Math.abs((snail.x + snail.width/2) - (ditchX + 81)) < SAFE_DIST) {
+            canSpawn = false;
+            break;
+          }
+        }
+      }
+      // Check other ditches
+      for (const ditch of waterDitches) {
+        if (Math.abs((ditch.x + ditch.width/2) - (ditchX + 81)) < SAFE_DIST) {
+          canSpawn = false;
+          break;
+        }
+      }
       if (canSpawn) {
-        waterDitches.push(new WaterDitch(ditchX, groundY));
+        waterDitches.push(new WaterDitch(ditchX, groundY, IS_MOBILE_LANDSCAPE));
         lastDitchSpawnDistance = totalDistanceTravelled;
         waterDitchSpawnDistance = Math.random() * (WATERDITCH_MAX_DISTANCE - WATERDITCH_MIN_DISTANCE) + WATERDITCH_MIN_DISTANCE;
       }
@@ -464,7 +597,15 @@ function gameLoop(currentTime) {
           const safeFromBomb = !bombs.some(bomb =>
             Math.abs((bomb.x + bomb.width / 2) - (x + bombWidth / 2)) < MIN_BOMB_SAFE_GAP
           );
-          if (safeFromCactus && safeFromSnail && safeFromBomb) {
+          // Check safe gap from water ditches
+          const safeFromDitch = !waterDitches.some(ditch =>
+            Math.abs((ditch.x + ditch.width / 2) - (x + bombWidth / 2)) < MIN_BOMB_SAFE_GAP
+          );
+          // Check safe gap from sweets
+          const safeFromSweet = !coins.some(coin =>
+            Math.abs((coin.x + coin.width / 2) - (x + bombWidth / 2)) < MIN_BOMB_SAFE_GAP
+          );
+          if (safeFromCactus && safeFromSnail && safeFromBomb && safeFromDitch && safeFromSweet) {
             bombs.push(new Bomb(x, groundY, scaleRatio));
             placed = true;
           }

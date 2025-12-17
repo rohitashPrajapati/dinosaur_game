@@ -31,8 +31,16 @@ function showSweetPop(x = null, y = null) {
   img.style.opacity = "0";
   img.style.zIndex = 1000;
   // Add here:
-  img.style.width = "120px";
-  img.style.height = "auto";
+  if (window.IS_MOBILE_LANDSCAPE) {
+    img.onload = () => {
+      const aspect = img.naturalWidth / img.naturalHeight;
+      img.style.width = 0.8 * window.innerHeight * aspect + "px";
+      img.style.height = 0.8 * window.innerHeight + "px";
+    };
+  } else {
+    img.style.width = "120px";
+    img.style.height = "auto";
+  }
   document.body.appendChild(img);
 
   // Animate pop in

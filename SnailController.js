@@ -29,10 +29,10 @@ class SnailController {
    * @param {Array} cactiRects - Array of {x, y, width, height} for cacti
    * @param {Array} bombRects - Array of {x, y, width, height} for bombs
    */
-  update(gameSpeed, frameTimeDelta, scaleRatio, cactiRects = [], bombRects = []) {
+  update(gameSpeed, frameTimeDelta, scaleRatio, cactiRects = [], bombRects = [], ditchRects = [], sweetRects = []) {
     this.spawnTimer += frameTimeDelta;
     if (this.spawnTimer > this.SNAIL_SPAWN_INTERVAL) {
-      this.spawnSnail(scaleRatio, cactiRects, bombRects);
+      this.spawnSnail(scaleRatio, cactiRects, bombRects, ditchRects, sweetRects);
       this.spawnTimer = 0;
     }
     this.snails.forEach(snail => snail.update(gameSpeed, frameTimeDelta, this.groundSpeed, scaleRatio));
@@ -49,7 +49,7 @@ class SnailController {
    * @param {Array} cactiRects
    * @param {Array} bombRects
    */
-  spawnSnail(scaleRatio, cactiRects = [], bombRects = []) {
+  spawnSnail(scaleRatio, cactiRects = [], bombRects = [], ditchRects = [], sweetRects = []) {
     const GAME_WIDTH = 800;
     const GAME_HEIGHT = 200;
     const groundY = GAME_HEIGHT * scaleRatio - 38 * scaleRatio - 34 * scaleRatio;
@@ -69,7 +69,15 @@ class SnailController {
       const safeFromSnail = !this.snails.some(snail =>
         Math.abs((snail.x + snail.width / 2) - (x + 19 * scaleRatio)) < MIN_SNAIL_SAFE_GAP * scaleRatio
       );
-      if (safeFromCactus && safeFromBomb && safeFromSnail) {
+      // Check safe gap from ditches
+      const safeFromDitch = !ditchRects.some(ditch =>
+        Math.abs((ditch.x + ditch.width / 2) - (x + 19 * scaleRatio)) < MIN_SNAIL_SAFE_GAP * scaleRatio
+      );
+      // Check safe gap from sweets
+      const safeFromSweet = !sweetRects.some(sweet =>
+        Math.abs((sweet.x + sweet.width / 2) - (x + 19 * scaleRatio)) < MIN_SNAIL_SAFE_GAP * scaleRatio
+      );
+      if (safeFromCactus && safeFromBomb && safeFromSnail && safeFromDitch && safeFromSweet) {
         this.snails.push(new Snail(x, groundY, scaleRatio));
         placed = true;
       }
