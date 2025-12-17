@@ -156,26 +156,28 @@ function setScreen() {
     '(orientation: landscape) and (max-width: 900px)'
   ).matches;
   if (isMobileLandscape) {
-    // Fill the screen, preserve aspect ratio
+    // Fill the screen as much as possible while maintaining aspect ratio and sharpness
+    const dpr = window.devicePixelRatio || 1;
     const screenW = window.innerWidth;
     const screenH = window.innerHeight;
     const gameAspect = GAME_WIDTH / GAME_HEIGHT;
     const screenAspect = screenW / screenH;
-    let drawW, drawH;
-    if (screenAspect > gameAspect) {
-      // Screen is wider than game, fit by height
-      drawH = screenH;
-      drawW = drawH * gameAspect;
-    } else {
-      // Screen is taller, fit by width
-      drawW = screenW;
-      drawH = drawW / gameAspect;
-    }
-    canvas.width = GAME_WIDTH;
-    canvas.height = GAME_HEIGHT;
-    canvas.style.width = drawW + 'px';
-    canvas.style.height = drawH + 'px';
-    scaleRatio = 1;
+    let cssW, cssH, scale;
+    // Use 'cover' logic: fill viewport, crop overflow, center game
+    scale = Math.max(screenW / GAME_WIDTH, screenH / GAME_HEIGHT);
+    cssW = GAME_WIDTH * scale;
+    cssH = GAME_HEIGHT * scale;
+    // Set canvas size in device pixels for sharpness
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    // Set CSS size in screen pixels (cover viewport)
+    canvas.style.width = cssW + 'px';
+    canvas.style.height = cssH + 'px';
+    // Set scaleRatio for all game elements (includes DPR)
+    scaleRatio = scale * dpr;
+    // Center the game area in the canvas
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+    ctx.translate((canvas.width - GAME_WIDTH * scaleRatio) / 2, (canvas.height - GAME_HEIGHT * scaleRatio) / 2);
   } else {
     // Desktop or portrait: scale as before
     scaleRatio = getScaleRatio();
@@ -183,6 +185,7 @@ function setScreen() {
     canvas.height = GAME_HEIGHT * scaleRatio;
     canvas.style.width = '';
     canvas.style.height = '';
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
   }
   createSprites();
 }
