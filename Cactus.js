@@ -3,8 +3,23 @@ export default class Cactus {
     this.ctx = ctx;
     this.x = x;
     this.y = y;
-    this.width = width;
-    this.height = height;
+    // Maintain cactus image aspect ratio
+    if (window.IS_MOBILE_LANDSCAPE) {
+      this.width = 0;
+      this.height = 0;
+      if (image) {
+        image.onload = () => {
+          this.height = height;
+          this.width = height * (image.naturalWidth / image.naturalHeight);
+          this._imageReady = true;
+        };
+      }
+      this._imageReady = false;
+    } else {
+      this.width = width;
+      this.height = height;
+      this._imageReady = true;
+    }
     this.image = image;
   }
 
@@ -13,6 +28,7 @@ export default class Cactus {
   }
 
   draw() {
+    if (window.IS_MOBILE_LANDSCAPE && !this._imageReady) return;
     this.ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
   }
 

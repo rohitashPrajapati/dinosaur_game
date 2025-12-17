@@ -14,7 +14,18 @@ class Bomb {
     this.y = y;
     // Maintain bomb image aspect ratio 279:316
     this.height = 30 * scaleRatio; // or any preferred height
-    this.width = (279 / 316) * this.height;
+    if (window.IS_MOBILE_LANDSCAPE) {
+      this.width = 0;
+      this.image.onload = () => {
+        const aspect = this.image.naturalWidth / this.image.naturalHeight;
+        this.width = this.height * aspect;
+        this._imageReady = true;
+      };
+      this._imageReady = false;
+    } else {
+      this.width = (279 / 316) * this.height;
+      this._imageReady = true;
+    }
     // Explosion image aspect ratio 890:813
     this.explosionHeight = this.height;
     this.explosionWidth = (890 / 813) * this.explosionHeight;
@@ -29,6 +40,7 @@ class Bomb {
   }
 
   update(gameSpeed, frameTimeDelta, groundSpeed, scaleRatio) {
+    if (window.IS_MOBILE_LANDSCAPE && !this._imageReady) return;
     if (!this.collected) {
       this.x -= gameSpeed * frameTimeDelta * groundSpeed * scaleRatio;
       // Only hide if fully off screen and not exploding

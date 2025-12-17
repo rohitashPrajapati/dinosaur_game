@@ -13,8 +13,27 @@ export default class Player {
   constructor(ctx, width, height, minJumpHeight, maxJumpHeight, scaleRatio) {
     this.ctx = ctx;
     this.canvas = ctx.canvas;
-    this.width = width;
-    this.height = height;
+    // Maintain player aspect ratio
+    if (window.IS_MOBILE_LANDSCAPE) {
+      this.width = 0;
+      this.height = 0;
+      this.standingStillImage = new Image();
+      this.standingStillImage.src = "images/player3.png";
+      this.standingStillImage.onload = () => {
+        const aspect = this.standingStillImage.naturalWidth / this.standingStillImage.naturalHeight;
+        this.height = height;
+        this.width = height * aspect;
+        this._imageReady = true;
+      };
+      this.jumpImage = new Image();
+      this.jumpImage.src = "images/player_jump.png";
+      this.jumpImage.onload = () => {};
+      this._imageReady = false;
+    } else {
+      this.width = width;
+      this.height = height;
+      this._imageReady = true;
+    }
     this.minJumpHeight = minJumpHeight;
     this.maxJumpHeight = maxJumpHeight;
     this.scaleRatio = scaleRatio;
@@ -30,7 +49,6 @@ export default class Player {
     this.jumpImage = new Image();
     this.jumpImage.src = "images/player_jump.png";
     this.image = this.standingStillImage;
-
 
     // Add as many run images as you want here
     const runImageSources = [
@@ -59,6 +77,11 @@ export default class Player {
 
     window.addEventListener("touchstart", this.touchstart);
     window.addEventListener("touchend", this.touchend);
+  }
+
+  draw(ctx) {
+    if (window.IS_MOBILE_LANDSCAPE && !this._imageReady) return;
+    // ...existing code for drawing the player...
   }
 
   touchstart = () => {
