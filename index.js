@@ -162,6 +162,8 @@ function isMobileLandscape() {
 
 function setScreen() {
   IS_MOBILE_LANDSCAPE = isMobileLandscape();
+  const dpr = window.devicePixelRatio || 1;
+  let cssW, cssH, scale;
   if (IS_MOBILE_LANDSCAPE) {
     // Reduce cactus size for mobile landscape
     CACTI_CONFIG = [
@@ -169,32 +171,13 @@ function setScreen() {
       { width: 98 / 1.6, height: 100 / 1.6, image: "images/cactus_2.png" },
       { width: 68 / 1.6, height: 70 / 1.6, image: "images/cactus_3.png" },
     ];
-    // Dynamically set GAME_WIDTH to better match device aspect ratio
-    const dpr = window.devicePixelRatio || 1;
     const screenW = window.innerWidth;
     const screenH = window.innerHeight;
-    // Use a 2.5:1 ratio or as close as possible to screen
     GAME_HEIGHT = ORIGINAL_GAME_HEIGHT;
     GAME_WIDTH = Math.min(Math.round(screenW * 0.95), Math.round(GAME_HEIGHT * 2.5));
-    // Fill the screen as much as possible while maintaining aspect ratio and sharpness
-    const gameAspect = GAME_WIDTH / GAME_HEIGHT;
-    const screenAspect = screenW / screenH;
-    let cssW, cssH, scale;
-    // Use 'cover' logic: fill viewport, crop overflow, center game
     scale = Math.max(screenW / GAME_WIDTH, screenH / GAME_HEIGHT);
     cssW = GAME_WIDTH * scale;
     cssH = GAME_HEIGHT * scale;
-    // Set canvas size in device pixels for sharpness
-    canvas.width = Math.round(cssW * dpr);
-    canvas.height = Math.round(cssH * dpr);
-    // Set CSS size in screen pixels (cover viewport)
-    canvas.style.width = cssW + 'px';
-    canvas.style.height = cssH + 'px';
-    // Set scaleRatio for all game elements (includes DPR)
-    scaleRatio = scale * dpr;
-    // Center the game area in the canvas
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
-    ctx.translate((canvas.width - GAME_WIDTH * scaleRatio) / 2, (canvas.height - GAME_HEIGHT * scaleRatio) / 2);
   } else {
     // Restore cactus size for desktop/portrait
     CACTI_CONFIG = [
@@ -202,16 +185,26 @@ function setScreen() {
       { width: 98 / 1.5, height: 100 / 1.5, image: "images/cactus_2.png" },
       { width: 68 / 1.5, height: 70 / 1.5, image: "images/cactus_3.png" },
     ];
-    // Desktop or portrait: use original game size
+    const screenW = window.innerWidth;
+    const screenH = window.innerHeight;
     GAME_WIDTH = ORIGINAL_GAME_WIDTH;
     GAME_HEIGHT = ORIGINAL_GAME_HEIGHT;
-    scaleRatio = getScaleRatio();
-    canvas.width = GAME_WIDTH * scaleRatio;
-    canvas.height = GAME_HEIGHT * scaleRatio;
-    canvas.style.width = '';
-    canvas.style.height = '';
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+    // Use the smaller ratio to fit the game in the viewport
+    scale = Math.min(screenW / GAME_WIDTH, screenH / GAME_HEIGHT);
+    cssW = GAME_WIDTH * scale;
+    cssH = GAME_HEIGHT * scale;
   }
+  // Set canvas size in device pixels for sharpness
+  canvas.width = Math.round(cssW * dpr);
+  canvas.height = Math.round(cssH * dpr);
+  // Set CSS size in screen pixels (cover viewport or fit)
+  canvas.style.width = cssW + 'px';
+  canvas.style.height = cssH + 'px';
+  // Set scaleRatio for all game elements (includes DPR)
+  scaleRatio = scale * dpr;
+  // Center the game area in the canvas
+  ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+  ctx.translate((canvas.width - GAME_WIDTH * scaleRatio) / 2, (canvas.height - GAME_HEIGHT * scaleRatio) / 2);
   createSprites();
 }
 
@@ -413,7 +406,7 @@ function spawnCoinOrSweet() {
     } else if (sweetRand < 0.27) {
       // Next 12%: random group (2-3) of sweets on ground at cactus level
       const groundCount = Math.floor(Math.random() * 2) + 2; // 2 or 3 sweets
-      const groundY = GAME_HEIGHT * scaleRatio - coinSize - (IS_MOBILE_LANDSCAPE ? 25 : 4) * scaleRatio;
+      const groundY = GAME_HEIGHT * scaleRatio - coinSize - (IS_MOBILE_LANDSCAPE ? 25 : 28) * scaleRatio;
       for (let i = 0; i < groundCount; i++) {
         let tries = 0;
         let groundX;
