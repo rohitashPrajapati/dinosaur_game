@@ -142,7 +142,7 @@ function createSprites() {
   bombSpawnTimer = 0;
 
   // Snail setup
-  snailController = new SnailController(ctx, scaleRatio, GROUND_AND_CACTUS_SPEED);
+  // snailController = new SnailController(ctx, scaleRatio, GROUND_AND_CACTUS_SPEED); // Disabled for now
 
   // Water Ditch setup
   waterDitches = [];
@@ -684,7 +684,7 @@ function gameLoop(currentTime) {
   ground.draw();
   cactiController.draw();
   // Draw snails after ground/cacti, before player
-  if (snailController) snailController.draw();
+  // if (snailController) snailController.draw(); // Disabled for now
   // Draw water ditches after ground/cacti, before player
   waterDitches.forEach((ditch) => ditch.draw(ctx));
   // Draw bombs before player
