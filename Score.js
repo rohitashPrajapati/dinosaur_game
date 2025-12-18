@@ -25,18 +25,18 @@ export default class Score {
 
   draw() {
     const highScore = Number(localStorage.getItem(this.HIGH_SCORE_KEY));
-    const y = 20 * this.scaleRatio;
-
     const fontSize = 20 * this.scaleRatio;
     this.ctx.font = `${fontSize}px serif`;
     this.ctx.fillStyle = "#525250";
-    const scoreX = this.canvas.width - 75 * this.scaleRatio;
-    const highScoreX = scoreX - 125 * this.scaleRatio;
+    const y = 20 * this.scaleRatio;
 
-    const scorePadded = Math.floor(this.score).toString().padStart(6, 0);
+    // Always center the score text
+    this.ctx.textAlign = "center";
+
+    const scorePadded = `SCORE  ${Math.floor(this.score).toString().padStart(6, 0)}`;
     const highScorePadded = highScore.toString().padStart(6, 0);
-
-    this.ctx.fillText(scorePadded, scoreX, y);
-    this.ctx.fillText(`HI ${highScorePadded}`, highScoreX, y);
+    const combinedText = `${scorePadded}    HI  ${highScorePadded}`;
+    // Draw both score and high score as a single centered string
+    this.ctx.fillText(combinedText, this.canvas.width / 2, y);
   }
 }

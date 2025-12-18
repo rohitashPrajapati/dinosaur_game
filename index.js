@@ -663,7 +663,7 @@ function gameLoop(currentTime) {
     });
     // Remove sweets older than 1 second
     window.sweetsCollected = window.sweetsCollected.filter(obj => now - obj.ts < 1000);
-    if (window.sweetsCollected.length >= 3) {
+    if (window.sweetsCollected.length >= 5) {
       // Average the last 3 positions
       const last3 = window.sweetsCollected.slice(-3);
       const avgX = Math.round(last3.reduce((sum, obj) => sum + obj.x, 0) / 3);
