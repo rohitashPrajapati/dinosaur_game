@@ -20,8 +20,8 @@ const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 
-const GAME_SPEED_START = 1; // 1.0
-const GAME_SPEED_INCREMENT = 0.00001;
+const GAME_SPEED_START = 0.8; // Slower initial speed
+const GAME_SPEED_INCREMENT = 0.000007; // Slower acceleration
 
 const ORIGINAL_GAME_WIDTH = 800;
 const ORIGINAL_GAME_HEIGHT = 200;

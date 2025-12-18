@@ -7,8 +7,8 @@ export default class Player {
   jumpPressed = false;
   jumpInProgress = false;
   falling = false;
-  JUMP_SPEED = 0.6;
-  GRAVITY = 0.4;
+  JUMP_SPEED = 0.48; // Slower upward movement for longer jump
+  GRAVITY = 0.36;    // Slightly less gravity for smoother descent
 
   constructor(ctx, width, height, minJumpHeight, maxJumpHeight, scaleRatio) {
     this.ctx = ctx;
