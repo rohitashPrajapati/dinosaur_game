@@ -57,8 +57,10 @@ export default class Player {
     // Load jump animation images
     const jumpImageSources = [
       "images/player_jump1.png",
+      "images/player_jump3.png",
       "images/player_jump2.png",
       "images/player_jump3.png",
+      "images/player_jump1.png",
       "images/player_jump4.png",
       "images/player_jump5.png",
       "images/player_jump6.png"
