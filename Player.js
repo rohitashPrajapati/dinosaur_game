@@ -9,6 +9,10 @@ export default class Player {
   falling = false;
   JUMP_SPEED = 0.6;
   GRAVITY = 0.4;
+  jumpAnimationImages = [];
+  jumpAnimationIndex = 0;
+  JUMP_ANIMATION_TIMER = 60;
+  jumpAnimationTimer = this.JUMP_ANIMATION_TIMER;
 
   constructor(ctx, width, height, minJumpHeight, maxJumpHeight, scaleRatio) {
     this.ctx = ctx;
@@ -49,6 +53,21 @@ export default class Player {
     this.jumpImage = new Image();
     this.jumpImage.src = "images/player_jump.png";
     this.image = this.standingStillImage;
+
+    // Load jump animation images
+    const jumpImageSources = [
+      "images/player_jump1.png",
+      "images/player_jump2.png",
+      "images/player_jump3.png",
+      "images/player_jump4.png",
+      "images/player_jump5.png",
+      "images/player_jump6.png"
+    ];
+    jumpImageSources.forEach(src => {
+      const img = new Image();
+      img.src = src;
+      this.jumpAnimationImages.push(img);
+    });
 
     // Add as many run images as you want here
     const runImageSources = [
@@ -108,12 +127,25 @@ export default class Player {
     this.run(gameSpeed, frameTimeDelta);
 
     if (this.jumpInProgress) {
-      this.image = this.jumpImage;
+      // Animate jump using jumpAnimationImages
+      if (this.jumpAnimationImages.length > 0) {
+        if (this.jumpAnimationTimer <= 0) {
+          this.jumpAnimationIndex = (this.jumpAnimationIndex + 1) % this.jumpAnimationImages.length;
+          this.jumpAnimationTimer = this.JUMP_ANIMATION_TIMER;
+        }
+        this.image = this.jumpAnimationImages[this.jumpAnimationIndex];
+        this.jumpAnimationTimer -= frameTimeDelta;
+      } else {
+        this.image = this.jumpImage;
+      }
     } else {
       // Only set to standingStillImage if not running (prevents run() from being overridden)
       if (!this.dinoRunImages.includes(this.image)) {
         this.image = this.standingStillImage;
       }
+      // Reset jump animation when not jumping
+      this.jumpAnimationIndex = 0;
+      this.jumpAnimationTimer = this.JUMP_ANIMATION_TIMER;
     }
 
     this.jump(frameTimeDelta);
