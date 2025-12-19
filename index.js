@@ -1,3 +1,14 @@
+import Player from "./Player.js";
+import { showSweetPop } from "./sweetPop.js";
+import Ground from "./Ground.js";
+import CactiController from "./CactiController.js";
+import Score from "./Score.js";
+import Coin from "./Coin.js";
+import WaterDitch from "./WaterDitch.js";
+import Bomb from "./Bomb.js";
+import SnailController from "./SnailController.js";
+import soundManager from "./soundManager.js";
+
 // --- Sound Toggle Button ---
 function createSoundAndPauseButtons() {
   // --- Sound Button ---
@@ -153,16 +164,6 @@ window.addEventListener('keydown', (e) => {
     }
   }
 });
-import Player from "./Player.js";
-import { showSweetPop } from "./sweetPop.js";
-import Ground from "./Ground.js";
-import CactiController from "./CactiController.js";
-import Score from "./Score.js";
-import Coin from "./Coin.js";
-import WaterDitch from "./WaterDitch.js";
-import Bomb from "./Bomb.js";
-import SnailController from "./SnailController.js";
-import soundManager from "./soundManager.js";
 // Water Ditch variables
 let waterDitches = [];
 let waterDitchSpawnDistance = 6000; // Start ditches after a long initial distance
