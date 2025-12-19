@@ -703,11 +703,58 @@ function gameLoop(currentTime) {
   }
 
   if (!gameOver && cactiController.collideWith(player)) {
+    // Find the colliding cactus
+    let impactX = null, impactY = null;
+    for (const cactus of cactiController.cacti) {
+      if (cactus.collideWith(player)) {
+        // Impact position: center of overlap
+        impactX = Math.max(player.x, cactus.x);
+        // If player is above cactus (impact on top), show at cactus top
+        if (player.y + player.height < cactus.y + cactus.height / 2) {
+          impactY = cactus.y; // top of cactus
+        } else {
+          // Otherwise, center of overlap
+          impactY = Math.max(player.y, cactus.y);
+          impactY += Math.min(player.height, cactus.height) / 2;
+        }
+        impactX += Math.min(player.width, cactus.width) / 2;
+        break;
+      }
+    }
+    if (impactX !== null && impactY !== null) {
+      showImpactImage(impactX, impactY);
+    }
     gameOver = true;
     setupGameReset();
     score.setHighScore();
     soundManager.play('gameover', 0);
   }
+// Show impact image at given canvas coordinates
+function showImpactImage(x, y) {
+  const rect = canvas.getBoundingClientRect();
+  // Convert canvas coordinates to screen coordinates
+  const screenX = rect.left + x * (rect.width / canvas.width);
+  const screenY = rect.top + y * (rect.height / canvas.height);
+  let impactImg = document.getElementById('impact-img');
+  if (impactImg) impactImg.remove();
+  impactImg = document.createElement('img');
+  impactImg.id = 'impact-img';
+  impactImg.src = 'images/impact.png';
+  impactImg.style.position = 'absolute';
+  impactImg.style.left = screenX + 'px';
+  impactImg.style.top = screenY + 'px';
+  impactImg.style.transform = 'translate(-50%, -50%) scale(1.2)';
+  impactImg.style.zIndex = 2000;
+  impactImg.style.pointerEvents = 'none';
+  impactImg.style.width = '60px';
+  impactImg.style.height = '60px';
+  impactImg.style.opacity = '1';
+  document.body.appendChild(impactImg);
+  setTimeout(() => {
+    if (impactImg) impactImg.style.opacity = '0';
+    setTimeout(() => impactImg && impactImg.remove(), 400);
+  }, 400);
+}
 
   //Draw game objects
   ground.draw();
