@@ -90,10 +90,60 @@ function createSoundAndPauseButtons() {
   }
 }
 
-// Call after DOM is ready
-window.addEventListener('DOMContentLoaded', createSoundAndPauseButtons);
+// --- Auto-rotate to landscape on mobile ---
+function forceLandscapeOnMobile() {
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isMobile && screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock('landscape').catch(() => {
+      // If lock fails (e.g., not allowed), show a message
+      showRotateMessage();
+    });
+  } else if (isMobile) {
+    // If orientation lock not supported, show a message
+    showRotateMessage();
+  }
+}
+
+function showRotateMessage() {
+  if (document.getElementById('rotate-message')) return;
+  const msg = document.createElement('div');
+  msg.id = 'rotate-message';
+  msg.innerText = 'Please rotate your device to landscape for the best experience.';
+  msg.style.position = 'fixed';
+  msg.style.top = 0;
+  msg.style.left = 0;
+  msg.style.width = '100vw';
+  msg.style.height = '100vh';
+  msg.style.background = 'rgba(0,0,0,0.7)';
+  msg.style.color = '#fff';
+  msg.style.display = 'flex';
+  msg.style.alignItems = 'center';
+  msg.style.justifyContent = 'center';
+  msg.style.fontSize = '2rem';
+  msg.style.zIndex = 5000;
+  msg.style.textAlign = 'center';
+  document.body.appendChild(msg);
+  // Remove message when in landscape (listen to both orientationchange and resize)
+  function removeIfLandscape() {
+    if (window.matchMedia('(orientation: landscape)').matches) {
+      msg.remove();
+      window.removeEventListener('orientationchange', removeIfLandscape);
+      window.removeEventListener('resize', removeIfLandscape);
+    }
+  }
+  window.addEventListener('orientationchange', removeIfLandscape);
+  window.addEventListener('resize', removeIfLandscape);
+  // Also check immediately in case already in landscape
+  removeIfLandscape();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  createSoundAndPauseButtons();
+  forceLandscapeOnMobile();
+});
 // Also call immediately in case DOM is already loaded
 createSoundAndPauseButtons();
+forceLandscapeOnMobile();
 // --- Pause/Resume Logic ---
 window.isGamePaused = false;
 let pauseOverlay = null;
