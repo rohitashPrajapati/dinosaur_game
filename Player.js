@@ -85,6 +85,14 @@ export default class Player {
   }
 
   touchstart = () => {
+    if (!this.jumpPressed && !this.jumpInProgress && !this.falling) {
+      try {
+        // Play jump sound only when jump starts
+        import('./soundManager.js').then(({ default: soundManager }) => {
+          soundManager.play('jump');
+        });
+      } catch (e) {}
+    }
     this.jumpPressed = true;
   };
 
@@ -94,6 +102,13 @@ export default class Player {
 
   keydown = (event) => {
     if (event.code === "Space") {
+      if (!this.jumpPressed && !this.jumpInProgress && !this.falling) {
+        try {
+          import('./soundManager.js').then(({ default: soundManager }) => {
+            soundManager.play('jump');
+          });
+        } catch (e) {}
+      }
       this.jumpPressed = true;
     }
   };

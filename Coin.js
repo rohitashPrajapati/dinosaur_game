@@ -38,7 +38,7 @@ class Coin {
         this.image.src = sweetSrc;
         this.scoreValue = 200;
         // Maintain sweet aspect ratio (assume square for sweet)
-        const sweetSize = (isMobile ? 30 : 30) * scaleRatio;
+        const sweetSize = (isMobile ? 25 : 25) * scaleRatio;
         if (window.IS_MOBILE_LANDSCAPE) {
           this.width = 0;
           this.height = 0;

@@ -7,6 +7,7 @@ import Coin from "./Coin.js";
 import WaterDitch from "./WaterDitch.js";
 import Bomb from "./Bomb.js";
 import SnailController from "./SnailController.js";
+import soundManager from "./soundManager.js";
 // Water Ditch variables
 let waterDitches = [];
 let waterDitchSpawnDistance = 6000; // Start ditches after a long initial distance
@@ -520,6 +521,7 @@ function gameLoop(currentTime) {
       gameOver = true;
       setupGameReset();
       score.setHighScore();
+      soundManager.play('gameover', 0);
     }
 
     // Track total ground distance travelled
@@ -636,9 +638,11 @@ function gameLoop(currentTime) {
     for (const bomb of bombs) {
       if (bomb.isColliding(player) && !bomb.collected && !bomb.exploding) {
         bomb.triggerExplosion();
+        soundManager.play('explosion');
         gameOver = true;
         setupGameReset();
         score.setHighScore();
+        soundManager.play('gameover', 500);
         break;
       }
     }
@@ -651,6 +655,7 @@ function gameLoop(currentTime) {
       if (coin.isColliding(player) && !coin.collected) {
         coin.collect();
         score.score += coin.scoreValue;
+        soundManager.play('coin');
         if (coin.type === "sweet") {
           // Store timestamp and center position
           window.sweetsCollected.push({
@@ -679,9 +684,14 @@ function gameLoop(currentTime) {
     // Water Ditch collision detection (game over if player falls in)
     for (const ditch of waterDitches) {
       if (ditch.isColliding(player)) {
+        // Only play water pit sound if player is not jumping
+        if (!player.jumpInProgress && !player.falling) {
+          soundManager.play('waterpit');
+        }
         gameOver = true;
         setupGameReset();
         score.setHighScore();
+        soundManager.play('gameover', 500);
         break;
       }
     }
@@ -696,6 +706,7 @@ function gameLoop(currentTime) {
     gameOver = true;
     setupGameReset();
     score.setHighScore();
+    soundManager.play('gameover', 0);
   }
 
   //Draw game objects
