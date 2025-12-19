@@ -90,6 +90,7 @@ let gameSpeed = GAME_SPEED_START;
 let gameOver = false;
 let hasAddedEventListenersForRestart = false;
 let waitingToStart = true;
+window.waitingToStart = waitingToStart;
 
 function createSprites() {
   const playerWidthInGame = PLAYER_WIDTH * scaleRatio;
@@ -273,6 +274,7 @@ function reset() {
   hasAddedEventListenersForRestart = false;
   gameOver = false;
   waitingToStart = false;
+  window.waitingToStart = false;
   ground.reset();
   cactiController.reset();
   score.reset();
@@ -774,6 +776,7 @@ function showImpactImage(x, y) {
   }
 
   if (waitingToStart) {
+    window.waitingToStart = true;
     showStartGameText();
   }
 
