@@ -18,7 +18,7 @@ class SoundManager {
     // Preload and unlock sounds for iOS
     this.sounds = {
       explosion: this.createAudio('sound/explosion.mp3'),
-      jump: this.createAudio('sound/jump.mp3'),
+      jump: this.createAudio('sound/jump.mp3', 0.01), // reduced volume
       waterpit: this.createAudio('sound/water_pit_touched.mp3'),
       gameover: this.createAudio('sound/death.mp3'),
       coin: this.createAudio('sound/coin2.mp3'),
@@ -28,11 +28,11 @@ class SoundManager {
     this.setupUnlock();
   }
 
-  createAudio(src) {
+  createAudio(src, volume = 0.05) {
     const audio = new Audio(src);
     audio.preload = 'auto';
     audio.load();
-    audio.volume = 0.05;
+    audio.volume = volume;
     // Required for iOS: must be played in response to user gesture
     audio.muted = true;
     audio.play().catch(() => {});
