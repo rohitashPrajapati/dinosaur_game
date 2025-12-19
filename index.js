@@ -236,7 +236,7 @@ const COIN_SPAWN_INTERVAL = 500; // ms (further reduced interval for even more s
 
 let bombs = [];
 let bombSpawnTimer = 0;
-const BOMB_SPAWN_INTERVAL = 2500; // ms, adjust for frequency
+const BOMB_SPAWN_INTERVAL = 1200; // ms, reduced interval for more frequent bombs
 
 let snailController = null;
 
@@ -735,14 +735,16 @@ function gameLoop(currentTime) {
     }
     bombSpawnTimer += frameTimeDelta;
     if (bombSpawnTimer > BOMB_SPAWN_INTERVAL) {
-      if (Math.random() < 0.3) {
-        const groundY = GAME_HEIGHT * scaleRatio - 65 * scaleRatio;
-        const bombHeight = 30 * scaleRatio;
-        const bombWidth = (279 / 316) * bombHeight;
-        const MIN_BOMB_SAFE_GAP = 220 * scaleRatio;
+      // Always spawn at least one bomb per interval
+      const groundY = GAME_HEIGHT * scaleRatio - 65 * scaleRatio;
+      const bombHeight = 30 * scaleRatio;
+      const bombWidth = (279 / 316) * bombHeight;
+      const MIN_BOMB_SAFE_GAP = 180 * scaleRatio; // reduce gap for more bombs
+      let bombsToSpawn = 2 + Math.floor(Math.random() * 2); // 2-3 bombs per interval
+      const cacti = cactiController && cactiController.getCactusRects ? cactiController.getCactusRects() : [];
+      for (let i = 0; i < bombsToSpawn; i++) {
         let tryCount = 0;
         let placed = false;
-        const cacti = cactiController && cactiController.getCactusRects ? cactiController.getCactusRects() : [];
         while (!placed && tryCount < 10) {
           const x = GAME_WIDTH * scaleRatio + 50 + Math.random() * 150 * scaleRatio;
           const safeFromCactus = !cacti.some(cactus =>
