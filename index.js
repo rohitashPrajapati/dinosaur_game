@@ -1,61 +1,158 @@
 // --- Sound Toggle Button ---
-function createSoundToggleButton() {
-  let btn = document.getElementById('sound-toggle-btn');
-  if (btn) return;
-  btn = document.createElement('button');
-  btn.id = 'sound-toggle-btn';
-  // SVGs as per user request
-  var soundOnSVG = '<svg id="sound-on-svg" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display:block; color:#3b59ff;"><path d="M20.522 7.228a6.74 6.74 0 0 1 0 9.544M7.5 15.75H3a.75.75 0 0 1-.75-.75V9A.75.75 0 0 1 3 8.25h4.5L14.25 3v18L7.5 15.75Zm0-7.5v7.5m10.369-5.869a2.99 2.99 0 0 1 0 4.238" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
-  var soundOffSVG = '<svg id="sound-off-svg" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="24" height="24" style="display:block; color:#3b59ff;"><path d="M27.363 9.637a8.988 8.988 0 0 1 0 12.726M10 11v10m13.825-7.825a3.99 3.99 0 0 1 0 5.65M6 5l20 22m-7-7.7V28l-9-7H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h6l.85-.662m3.175-2.463L19 4v9.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
-  btn.innerHTML = soundOnSVG;
-  btn.style.position = 'fixed';
-  btn.style.top = '24px';
-  btn.style.right = '24px';
-  btn.style.zIndex = 3000;
-  // Responsive size: larger on desktop, smaller on mobile landscape
-  function setBtnSize() {
-    if (window.IS_MOBILE_LANDSCAPE) {
-      btn.style.width = '56px';
-      btn.style.height = '32px';
-      btn.style.borderRadius = '16px';
-    } else {
-      btn.style.width = '80px';
-      btn.style.height = '44px';
-      btn.style.borderRadius = '22px';
+function createSoundAndPauseButtons() {
+  // --- Sound Button ---
+  let soundBtn = document.getElementById('sound-toggle-btn');
+  if (!soundBtn) {
+    soundBtn = document.createElement('button');
+    soundBtn.id = 'sound-toggle-btn';
+    var soundOnSVG = '<svg id="sound-on-svg" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display:block; color:#3b59ff;"><path d="M20.522 7.228a6.74 6.74 0 0 1 0 9.544M7.5 15.75H3a.75.75 0 0 1-.75-.75V9A.75.75 0 0 1 3 8.25h4.5L14.25 3v18L7.5 15.75Zm0-7.5v7.5m10.369-5.869a2.99 2.99 0 0 1 0 4.238" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
+    var soundOffSVG = '<svg id="sound-off-svg" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="24" height="24" style="display:block; color:#3b59ff;"><path d="M27.363 9.637a8.988 8.988 0 0 1 0 12.726M10 11v10m13.825-7.825a3.99 3.99 0 0 1 0 5.65M6 5l20 22m-7-7.7V28l-9-7H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h6l.85-.662m3.175-2.463L19 4v9.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
+    soundBtn.innerHTML = soundOnSVG;
+    soundBtn.style.position = 'fixed';
+    soundBtn.style.top = '24px';
+    soundBtn.style.right = '24px';
+    soundBtn.style.zIndex = 3000;
+    function setBtnSize() {
+      if (window.IS_MOBILE_LANDSCAPE) {
+        soundBtn.style.width = '56px';
+        soundBtn.style.height = '32px';
+        soundBtn.style.borderRadius = '16px';
+      } else {
+        soundBtn.style.width = '80px';
+        soundBtn.style.height = '44px';
+        soundBtn.style.borderRadius = '22px';
+      }
     }
+    setBtnSize();
+    window.addEventListener('resize', setBtnSize);
+    soundBtn.style.border = 'none';
+    soundBtn.style.background = '#fff';
+    soundBtn.style.display = 'flex';
+    soundBtn.style.alignItems = 'center';
+    soundBtn.style.justifyContent = 'center';
+    soundBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    soundBtn.style.userSelect = 'none';
+    soundBtn.style.cursor = 'pointer';
+    soundBtn.setAttribute('aria-label', 'Toggle sound');
+    let soundOn = true;
+    soundBtn.onclick = () => {
+      soundOn = !soundOn;
+      soundBtn.innerHTML = soundOn ? soundOnSVG : soundOffSVG;
+      if (window.soundManager) {
+        window.soundManager.setMuted(!soundOn);
+      } else if (typeof soundManager !== 'undefined') {
+        soundManager.setMuted && soundManager.setMuted(!soundOn);
+      }
+      soundBtn.blur();
+    };
+    document.body.appendChild(soundBtn);
   }
-  setBtnSize();
-  // Listen for orientation/resize to update size
-  window.addEventListener('resize', setBtnSize);
-  // If you have a custom event for landscape change, listen to that too
-  btn.style.border = 'none';
-  btn.style.background = '#fff';
-  btn.style.display = 'flex';
-  btn.style.alignItems = 'center';
-  btn.style.justifyContent = 'center';
-  btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-  btn.style.userSelect = 'none';
-  btn.style.cursor = 'pointer';
-  btn.setAttribute('aria-label', 'Toggle sound');
-  let soundOn = true;
-  btn.onclick = () => {
-    soundOn = !soundOn;
-    btn.innerHTML = soundOn ? soundOnSVG : soundOffSVG;
-    if (window.soundManager) {
-      window.soundManager.setMuted(!soundOn);
-    } else if (typeof soundManager !== 'undefined') {
-      soundManager.setMuted && soundManager.setMuted(!soundOn);
-    }
-    // Remove focus so space/enter doesn't toggle again
-    btn.blur();
-  };
-  document.body.appendChild(btn);
+
+  // --- Pause Button ---
+  let pauseBtn = document.getElementById('pause-btn');
+  if (!pauseBtn) {
+    pauseBtn = document.createElement('button');
+    pauseBtn.id = 'pause-btn';
+    pauseBtn.innerHTML = '<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display:block; color:#3b59ff;"><rect x="6" y="4" width="4" height="16" rx="2" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="2" fill="currentColor"/></svg>';
+    pauseBtn.style.position = 'fixed';
+    pauseBtn.style.top = '24px';
+    pauseBtn.style.right = '110px';
+    pauseBtn.style.zIndex = 3000;
+    pauseBtn.style.width = soundBtn ? soundBtn.style.width : '80px';
+    pauseBtn.style.height = soundBtn ? soundBtn.style.height : '44px';
+    pauseBtn.style.borderRadius = soundBtn ? soundBtn.style.borderRadius : '22px';
+    pauseBtn.style.border = 'none';
+    pauseBtn.style.background = '#fff';
+    pauseBtn.style.display = 'flex';
+    pauseBtn.style.alignItems = 'center';
+    pauseBtn.style.justifyContent = 'center';
+    pauseBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    pauseBtn.style.userSelect = 'none';
+    pauseBtn.style.cursor = 'pointer';
+    pauseBtn.setAttribute('aria-label', 'Pause game');
+    pauseBtn.onclick = () => {
+      if (!window.isGamePaused) {
+        pauseGame();
+      }
+    };
+    document.body.appendChild(pauseBtn);
+  }
 }
 
 // Call after DOM is ready
-window.addEventListener('DOMContentLoaded', createSoundToggleButton);
+window.addEventListener('DOMContentLoaded', createSoundAndPauseButtons);
 // Also call immediately in case DOM is already loaded
-createSoundToggleButton();
+createSoundAndPauseButtons();
+// --- Pause/Resume Logic ---
+window.isGamePaused = false;
+let pauseOverlay = null;
+
+function pauseGame() {
+  window.isGamePaused = true;
+  // Show overlay popup
+  if (!pauseOverlay) {
+    pauseOverlay = document.createElement('div');
+    pauseOverlay.id = 'pause-overlay';
+    pauseOverlay.style.position = 'fixed';
+    pauseOverlay.style.top = 0;
+    pauseOverlay.style.left = 0;
+    pauseOverlay.style.width = '100vw';
+    pauseOverlay.style.height = '100vh';
+    pauseOverlay.style.background = 'rgba(0,0,0,0.35)';
+    pauseOverlay.style.display = 'flex';
+    pauseOverlay.style.alignItems = 'center';
+    pauseOverlay.style.justifyContent = 'center';
+    pauseOverlay.style.zIndex = 4000;
+    // Popup box
+    const popup = document.createElement('div');
+    popup.style.background = '#fff';
+    popup.style.padding = '32px 48px';
+    popup.style.borderRadius = '18px';
+    popup.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)';
+    popup.style.display = 'flex';
+    popup.style.flexDirection = 'column';
+    popup.style.alignItems = 'center';
+    // Pause text
+    const pauseText = document.createElement('div');
+    pauseText.innerText = 'Game Paused';
+    pauseText.style.fontSize = '2.2rem';
+    pauseText.style.color = '#3b59ff';
+    pauseText.style.marginBottom = '24px';
+    popup.appendChild(pauseText);
+    // Resume button
+    const resumeBtn = document.createElement('button');
+    resumeBtn.innerText = 'Resume';
+    resumeBtn.style.fontSize = '1.2rem';
+    resumeBtn.style.padding = '10px 32px';
+    resumeBtn.style.background = '#3b59ff';
+    resumeBtn.style.color = '#fff';
+    resumeBtn.style.border = 'none';
+    resumeBtn.style.borderRadius = '8px';
+    resumeBtn.style.cursor = 'pointer';
+    resumeBtn.onclick = resumeGame;
+    popup.appendChild(resumeBtn);
+    pauseOverlay.appendChild(popup);
+    document.body.appendChild(pauseOverlay);
+  } else {
+    pauseOverlay.style.display = 'flex';
+  }
+}
+
+function resumeGame() {
+  window.isGamePaused = false;
+  if (pauseOverlay) pauseOverlay.style.display = 'none';
+}
+
+// Keyboard shortcut: P to pause/resume
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'p' || e.key === 'P') {
+    if (!window.isGamePaused) {
+      pauseGame();
+    } else {
+      resumeGame();
+    }
+  }
+});
 import Player from "./Player.js";
 import { showSweetPop } from "./sweetPop.js";
 import Ground from "./Ground.js";
@@ -551,6 +648,13 @@ function gameLoop(currentTime) {
   const frameTimeDelta = currentTime - previousTime;
   previousTime = currentTime;
 
+  // Only update/draw if not paused
+  if (window.isGamePaused) {
+    // Draw overlay if needed (already handled by pauseGame)
+    requestAnimationFrame(gameLoop);
+    return;
+  }
+
   // Only update background position if game is running
   if (!gameOver && !waitingToStart && backgroundLoaded) {
     backgroundX -= gameSpeed * frameTimeDelta * backgroundSpeed * scaleRatio * 0.5;
@@ -563,37 +667,29 @@ function gameLoop(currentTime) {
   clearScreen();
 
   if (!gameOver && !waitingToStart) {
-    //Update game objects
+    // ...existing code for updating game objects, collisions, etc...
     ground.update(gameSpeed, frameTimeDelta);
     cactiController.update(gameSpeed, frameTimeDelta);
     player.update(gameSpeed, frameTimeDelta);
     score.update(frameTimeDelta);
     updateGameSpeed(frameTimeDelta);
-    // Prepare cacti and bomb rects for safe placement
     const cactiRects = cactiController && cactiController.getCactusRects ? cactiController.getCactusRects() : [];
     const bombRects = bombs.map(bomb => ({ x: bomb.x, y: bomb.y, width: bomb.width, height: bomb.height }));
     const ditchRects = waterDitches.map(ditch => ({ x: ditch.x, y: ditch.y, width: ditch.width, height: ditch.height }));
     const sweetRects = coins.map(coin => ({ x: coin.x, y: coin.y, width: coin.width, height: coin.height }));
-    // Update snails with safe placement
     if (snailController) snailController.update(gameSpeed, frameTimeDelta, scaleRatio, cactiRects, bombRects, ditchRects, sweetRects);
-    // Snail collision detection (game over if player touches snail)
     if (snailController && snailController.isColliding(player)) {
       gameOver = true;
       setupGameReset();
       score.setHighScore();
       soundManager.play('gameover', 0);
     }
-
-    // Track total ground distance travelled
     totalDistanceTravelled += gameSpeed * frameTimeDelta * GROUND_AND_CACTUS_SPEED * scaleRatio;
-    // Water Ditch spawn logic: only spawn after required distance travelled since last ditch
     if (totalDistanceTravelled - lastDitchSpawnDistance > waterDitchSpawnDistance) {
       const groundY = GAME_HEIGHT * scaleRatio - GROUND_HEIGHT * scaleRatio;
       const ditchX = GAME_WIDTH * scaleRatio;
-      // Check all obstacles for overlap and safe distance
-      const SAFE_DIST = 350 * scaleRatio; // Minimum safe distance between ditch and any obstacle
+      const SAFE_DIST = 350 * scaleRatio;
       let canSpawn = true;
-      // Check cactus
       if (cactiController && cactiController.getCactusRects) {
         const cactiRects = cactiController.getCactusRects();
         for (const cactus of cactiRects) {
@@ -603,14 +699,12 @@ function gameLoop(currentTime) {
           }
         }
       }
-      // Check bombs
       for (const bomb of bombs) {
         if (Math.abs((bomb.x + bomb.width/2) - (ditchX + 81)) < SAFE_DIST) {
           canSpawn = false;
           break;
         }
       }
-      // Check snails
       if (snailController && snailController.snails) {
         for (const snail of snailController.snails) {
           if (Math.abs((snail.x + snail.width/2) - (ditchX + 81)) < SAFE_DIST) {
@@ -619,7 +713,6 @@ function gameLoop(currentTime) {
           }
         }
       }
-      // Check other ditches
       for (const ditch of waterDitches) {
         if (Math.abs((ditch.x + ditch.width/2) - (ditchX + 81)) < SAFE_DIST) {
           canSpawn = false;
@@ -632,20 +725,13 @@ function gameLoop(currentTime) {
         waterDitchSpawnDistance = Math.random() * (WATERDITCH_MAX_DISTANCE - WATERDITCH_MIN_DISTANCE) + WATERDITCH_MIN_DISTANCE;
       }
     }
-    // Update ditches (move at ground speed)
     waterDitches.forEach((ditch) => ditch.update(gameSpeed, frameTimeDelta, GROUND_AND_CACTUS_SPEED, scaleRatio));
-    // Remove ditches that have gone off screen
     waterDitches = waterDitches.filter((ditch) => ditch.x + ditch.width > 0);
-
-
-    // Coin/sweet spawn logic
     coinSpawnTimer += frameTimeDelta;
     if (coinSpawnTimer > COIN_SPAWN_INTERVAL) {
       spawnCoinOrSweet();
       coinSpawnTimer = 0;
     }
-
-    // Bomb spawn logic (safe placement)
     bombSpawnTimer += frameTimeDelta;
     if (bombSpawnTimer > BOMB_SPAWN_INTERVAL) {
       if (Math.random() < 0.3) {
@@ -658,23 +744,18 @@ function gameLoop(currentTime) {
         const cacti = cactiController && cactiController.getCactusRects ? cactiController.getCactusRects() : [];
         while (!placed && tryCount < 10) {
           const x = GAME_WIDTH * scaleRatio + 50 + Math.random() * 150 * scaleRatio;
-          // Check safe gap from cacti
           const safeFromCactus = !cacti.some(cactus =>
             Math.abs((cactus.x + cactus.width / 2) - (x + bombWidth / 2)) < MIN_BOMB_SAFE_GAP
           );
-          // Check safe gap from snails
           const safeFromSnail = !(snailController && snailController.snails && snailController.snails.some(snail =>
             Math.abs((snail.x + snail.width / 2) - (x + bombWidth / 2)) < MIN_BOMB_SAFE_GAP
           ));
-          // Check safe gap from other bombs
           const safeFromBomb = !bombs.some(bomb =>
             Math.abs((bomb.x + bomb.width / 2) - (x + bombWidth / 2)) < MIN_BOMB_SAFE_GAP
           );
-          // Check safe gap from water ditches
           const safeFromDitch = !waterDitches.some(ditch =>
             Math.abs((ditch.x + ditch.width / 2) - (x + bombWidth / 2)) < MIN_BOMB_SAFE_GAP
           );
-          // Check safe gap from sweets
           const safeFromSweet = !coins.some(coin =>
             Math.abs((coin.x + coin.width / 2) - (x + bombWidth / 2)) < MIN_BOMB_SAFE_GAP
           );
@@ -687,14 +768,8 @@ function gameLoop(currentTime) {
       }
       bombSpawnTimer = 0;
     }
-
-
-    // Update coins/sweets
     coins.forEach((coin) => coin.update(gameSpeed, frameTimeDelta, GROUND_AND_CACTUS_SPEED, scaleRatio));
-    // Update bombs
     bombs.forEach((bomb) => bomb.update(gameSpeed, frameTimeDelta, GROUND_AND_CACTUS_SPEED, scaleRatio));
-
-    // Bomb collision detection
     for (const bomb of bombs) {
       if (bomb.isColliding(player) && !bomb.collected && !bomb.exploding) {
         bomb.triggerExplosion();
@@ -706,9 +781,6 @@ function gameLoop(currentTime) {
         break;
       }
     }
-
-    // Collision detection
-    // Track sweets collected in the last second, and their positions
     if (!window.sweetsCollected) window.sweetsCollected = [];
     const now = performance.now();
     coins.forEach((coin) => {
@@ -717,7 +789,6 @@ function gameLoop(currentTime) {
         score.score += coin.scoreValue;
         soundManager.play('coin');
         if (coin.type === "sweet") {
-          // Store timestamp and center position
           window.sweetsCollected.push({
             ts: now,
             x: coin.x + coin.width / 2,
@@ -726,25 +797,19 @@ function gameLoop(currentTime) {
         }
       }
     });
-    // Remove sweets older than 1 second
     window.sweetsCollected = window.sweetsCollected.filter(obj => now - obj.ts < 1000);
     if (window.sweetsCollected.length >= 5) {
-      // Average the last 3 positions
       const last3 = window.sweetsCollected.slice(-3);
       const avgX = Math.round(last3.reduce((sum, obj) => sum + obj.x, 0) / 3);
       const avgY = Math.round(last3.reduce((sum, obj) => sum + obj.y, 0) / 3);
-      // Convert game canvas position to screen position
       const rect = canvas.getBoundingClientRect();
       const screenX = rect.left + avgX * (rect.width / canvas.width);
       const screenY = rect.top + avgY * (rect.height / canvas.height);
       showSweetPop(screenX, screenY);
       window.sweetsCollected = [];
     }
-
-    // Water Ditch collision detection (game over if player falls in)
     for (const ditch of waterDitches) {
       if (ditch.isColliding(player)) {
-        // Only play water pit sound if player is not jumping
         if (!player.jumpInProgress && !player.falling) {
           soundManager.play('waterpit');
         }
@@ -755,10 +820,7 @@ function gameLoop(currentTime) {
         break;
       }
     }
-
-    // Remove invisible coins/sweets
     coins = coins.filter((coin) => coin.visible);
-    // Only remove bombs if their explosion animation is done
     bombs = bombs.filter((bomb) => bomb.visible || (bomb.exploding && bomb.explosionFrame < 3));
   }
 
