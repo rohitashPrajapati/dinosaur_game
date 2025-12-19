@@ -1,3 +1,61 @@
+// --- Sound Toggle Button ---
+function createSoundToggleButton() {
+  let btn = document.getElementById('sound-toggle-btn');
+  if (btn) return;
+  btn = document.createElement('button');
+  btn.id = 'sound-toggle-btn';
+  // SVGs as per user request
+  var soundOnSVG = '<svg id="sound-on-svg" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display:block; color:#3b59ff;"><path d="M20.522 7.228a6.74 6.74 0 0 1 0 9.544M7.5 15.75H3a.75.75 0 0 1-.75-.75V9A.75.75 0 0 1 3 8.25h4.5L14.25 3v18L7.5 15.75Zm0-7.5v7.5m10.369-5.869a2.99 2.99 0 0 1 0 4.238" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
+  var soundOffSVG = '<svg id="sound-off-svg" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="24" height="24" style="display:block; color:#3b59ff;"><path d="M27.363 9.637a8.988 8.988 0 0 1 0 12.726M10 11v10m13.825-7.825a3.99 3.99 0 0 1 0 5.65M6 5l20 22m-7-7.7V28l-9-7H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h6l.85-.662m3.175-2.463L19 4v9.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
+  btn.innerHTML = soundOnSVG;
+  btn.style.position = 'fixed';
+  btn.style.top = '24px';
+  btn.style.right = '24px';
+  btn.style.zIndex = 3000;
+  // Responsive size: larger on desktop, smaller on mobile landscape
+  function setBtnSize() {
+    if (window.IS_MOBILE_LANDSCAPE) {
+      btn.style.width = '56px';
+      btn.style.height = '32px';
+      btn.style.borderRadius = '16px';
+    } else {
+      btn.style.width = '80px';
+      btn.style.height = '44px';
+      btn.style.borderRadius = '22px';
+    }
+  }
+  setBtnSize();
+  // Listen for orientation/resize to update size
+  window.addEventListener('resize', setBtnSize);
+  // If you have a custom event for landscape change, listen to that too
+  btn.style.border = 'none';
+  btn.style.background = '#fff';
+  btn.style.display = 'flex';
+  btn.style.alignItems = 'center';
+  btn.style.justifyContent = 'center';
+  btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+  btn.style.userSelect = 'none';
+  btn.style.cursor = 'pointer';
+  btn.setAttribute('aria-label', 'Toggle sound');
+  let soundOn = true;
+  btn.onclick = () => {
+    soundOn = !soundOn;
+    btn.innerHTML = soundOn ? soundOnSVG : soundOffSVG;
+    if (window.soundManager) {
+      window.soundManager.setMuted(!soundOn);
+    } else if (typeof soundManager !== 'undefined') {
+      soundManager.setMuted && soundManager.setMuted(!soundOn);
+    }
+    // Remove focus so space/enter doesn't toggle again
+    btn.blur();
+  };
+  document.body.appendChild(btn);
+}
+
+// Call after DOM is ready
+window.addEventListener('DOMContentLoaded', createSoundToggleButton);
+// Also call immediately in case DOM is already loaded
+createSoundToggleButton();
 import Player from "./Player.js";
 import { showSweetPop } from "./sweetPop.js";
 import Ground from "./Ground.js";

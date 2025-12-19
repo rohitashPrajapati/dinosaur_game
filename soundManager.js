@@ -1,8 +1,19 @@
 // soundManager.js
 // Handles sound playback with iOS web compatibility
 // Usage: import soundManager and call soundManager.play('soundName')
+// soundManager.js
+// Handles sound playback with iOS web compatibility
+// Usage: import soundManager and call soundManager.play('soundName')
 
 class SoundManager {
+    setMuted(muted) {
+      // Mute/unmute all preloaded sounds
+      Object.values(this.sounds).forEach(audio => {
+        audio.muted = !!muted;
+      });
+      // Store state for clones
+      this._muted = !!muted;
+    }
   constructor() {
     // Preload and unlock sounds for iOS
     this.sounds = {
@@ -61,6 +72,7 @@ class SoundManager {
         // Use a clone to allow overlapping
         const clone = audio.cloneNode();
         clone.volume = audio.volume; // Use the same volume as the original (0.1)
+        clone.muted = this._muted || false;
         clone.play().catch(() => {});
       } catch (e) {}
     };
@@ -73,4 +85,5 @@ class SoundManager {
 }
 
 const soundManager = new SoundManager();
+window.soundManager = soundManager;
 export default soundManager;
