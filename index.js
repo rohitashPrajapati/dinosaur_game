@@ -236,8 +236,8 @@ let GAME_WIDTH = ORIGINAL_GAME_WIDTH;
 let GAME_HEIGHT = ORIGINAL_GAME_HEIGHT;
 // const PLAYER_WIDTH = 67 / 1.5; //58
 // const PLAYER_HEIGHT = 100 / 1.5; //62
-const PLAYER_WIDTH = 67 / 1.6; //58
-const PLAYER_HEIGHT = 113 / 1.6; //62
+const PLAYER_WIDTH = 75 * 1; //58
+const PLAYER_HEIGHT = 76 * 1; //62
 const MAX_JUMP_HEIGHT = GAME_HEIGHT;
 const MIN_JUMP_HEIGHT = 150;
 const GROUND_WIDTH = 2400;
@@ -374,10 +374,11 @@ function setScreen() {
   let cssW, cssH, scale;
   if (IS_MOBILE_LANDSCAPE) {
     // Reduce cactus size for mobile landscape
+    const scaleFactor = 1.6;
     CACTI_CONFIG = [
-      { width: 48 / 1.6, height: 100 / 1.6, image: "images/cactus_1.png" },
-      { width: 98 / 1.6, height: 100 / 1.6, image: "images/cactus_2.png" },
-      { width: 68 / 1.6, height: 70 / 1.6, image: "images/cactus_3.png" },
+      { width: 48 / scaleFactor, height: 100 / scaleFactor, image: "images/cactus_1.png" },
+      { width: 98 / scaleFactor, height: 100 / scaleFactor, image: "images/cactus_2.png" },
+      { width: 68 / scaleFactor, height: 70 / scaleFactor, image: "images/cactus_3.png" },
     ];
     const screenW = window.innerWidth;
     const screenH = window.innerHeight;
@@ -388,10 +389,11 @@ function setScreen() {
     cssH = GAME_HEIGHT * scale;
   } else {
     // Restore cactus size for desktop/portrait
+    const scaleFactor = 2;
     CACTI_CONFIG = [
-      { width: 48 / 1.5, height: 100 / 1.5, image: "images/cactus_1.png" },
-      { width: 98 / 1.5, height: 100 / 1.5, image: "images/cactus_2.png" },
-      { width: 68 / 1.5, height: 70 / 1.5, image: "images/cactus_3.png" },
+      { width: 48 / scaleFactor, height: 100 / scaleFactor, image: "images/cactus_1.png" },
+      { width: 98 / scaleFactor, height: 100 / scaleFactor, image: "images/cactus_2.png" },
+      { width: 68 / scaleFactor, height: 70 / scaleFactor, image: "images/cactus_3.png" },
     ];
     const screenW = window.innerWidth;
     const screenH = window.innerHeight;

@@ -1,5 +1,5 @@
 export default class Player {
-  WALK_ANIMATION_TIMER = 200;
+  WALK_ANIMATION_TIMER = 27;
   walkAnimationTimer = this.WALK_ANIMATION_TIMER;
   dinoRunImages = [];
   dinoRunImageIndex = 0;
@@ -45,19 +45,58 @@ export default class Player {
 
 
     this.standingStillImage = new Image();
-    this.standingStillImage.src = "images/player3.png";
+    this.standingStillImage.src = "images/player/frame_000.png";
     this.jumpImage = new Image();
-    this.jumpImage.src = "images/player_jump.png";
+    this.jumpImage.src = "images/player/frame_011.png";
     this.image = this.standingStillImage;
 
     // Add as many run images as you want here
+    // const runImageSources = [
+    //   "images/player1.png",
+    //   "images/player2.png",
+    //   "images/player3.png",
+    //   "images/player4.png",
+    //   "images/player5.png"
+    // ];
     const runImageSources = [
-      "images/player1.png",
-      "images/player2.png",
-      "images/player3.png",
-      "images/player4.png",
-      "images/player5.png"
-    ];
+    "images/player/frame_000.png",
+    "images/player/frame_001.png",
+    "images/player/frame_002.png",
+    "images/player/frame_003.png",
+    "images/player/frame_004.png",
+    "images/player/frame_005.png",
+    "images/player/frame_006.png",
+    "images/player/frame_007.png",
+    "images/player/frame_008.png",
+    "images/player/frame_009.png",
+    "images/player/frame_010.png",
+    "images/player/frame_011.png",
+    "images/player/frame_012.png",
+    "images/player/frame_013.png",
+    "images/player/frame_014.png",
+    "images/player/frame_015.png",
+    "images/player/frame_016.png",
+    "images/player/frame_017.png",
+    "images/player/frame_018.png",
+    "images/player/frame_019.png",
+    "images/player/frame_020.png",
+    "images/player/frame_021.png",
+    "images/player/frame_022.png",
+    "images/player/frame_023.png",
+    "images/player/frame_024.png",
+    "images/player/frame_025.png",
+    "images/player/frame_026.png",
+    "images/player/frame_027.png",
+    "images/player/frame_028.png",
+    "images/player/frame_029.png",
+    "images/player/frame_030.png",
+    "images/player/frame_031.png",
+    "images/player/frame_032.png",
+    "images/player/frame_033.png",
+    "images/player/frame_034.png",
+    "images/player/frame_035.png"
+  ];
+
     runImageSources.forEach(src => {
       const img = new Image();
       img.src = src;
