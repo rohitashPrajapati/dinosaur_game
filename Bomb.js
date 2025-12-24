@@ -82,13 +82,20 @@ class Bomb {
   }
 
   isColliding(player) {
+    // Shrink bomb collision box by 30% on all sides
+    const shrinkW = this.width * 0.15;
+    const shrinkH = this.height * 0.15;
+    const bombX = this.x + shrinkW;
+    const bombY = this.y + shrinkH;
+    const bombW = this.width - 2 * shrinkW;
+    const bombH = this.height - 2 * shrinkH;
     return (
       this.visible &&
       !this.collected &&
-      player.x < this.x + this.width &&
-      player.x + player.width > this.x &&
-      player.y < this.y + this.height &&
-      player.y + player.height > this.y
+      player.x < bombX + bombW &&
+      player.x + player.width > bombX &&
+      player.y < bombY + bombH &&
+      player.y + player.height > bombY
     );
   }
 }

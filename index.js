@@ -599,82 +599,91 @@ function spawnCoinOrSweet() {
   if (gameMode === "sweet") {
     const sweetsSpaceBetween = IS_MOBILE_LANDSCAPE ? 30 : 0;
     const MAX_TRIES = 10;
-    // Extra: At the very start of the game, spawn a burst of sweets
-    // if (totalDistanceTravelled < 2000) {
-    //   // Spawn a big burst of sweets in the first 2000px
-    //   const burstCount = 10 + Math.floor(Math.random() * 6); // 10-15 sweets
-    //   const burstY = GAME_HEIGHT * scaleRatio - 150 - (IS_MOBILE_LANDSCAPE ? 25 : 36) * scaleRatio;
-    //   for (let i = 0; i < burstCount; i++) {
-    //     let tries = 0;
-    //     let burstX;
-    //     do {
-    //       burstX = (i * 120) + (Math.random() * 40 - 20) + 200;
-    //       tries++;
-    //     } while (isOverlappingAny(burstX, burstY, 150, 150) && tries < MAX_TRIES);
-    //     if (tries < MAX_TRIES) {
-    //       coins.push(new Coin(burstX, burstY, "sweet", SWEET_IMAGES, scaleRatio));
-    //     }
-    //   }
-    //   // Continue with normal logic as well
-    // }
-    if (sweetRand < 0.28) {
-      // 60% chance to spawn a row of sweets on the ground at cactus level
-      const groundCount = Math.floor(Math.random() * 4) + 4; // 4 to 7 sweets
-      const groundY = GAME_HEIGHT * scaleRatio - coinSize - 24 * scaleRatio; // 24 is ground height
-      for (let i = 0; i < groundCount; i++) {
+    // Reduce burst sweets at start
+    if (totalDistanceTravelled < 2000) {
+      const burstCount = 3 + Math.floor(Math.random() * 2); // 3-4 sweets
+      const burstY = GAME_HEIGHT * scaleRatio - 150 - (IS_MOBILE_LANDSCAPE ? 25 : 36) * scaleRatio;
+      for (let i = 0; i < burstCount; i++) {
         let tries = 0;
-        let groundX;
+        let burstX;
         do {
-          groundX = x + i * (coinSize * 0.8) + (Math.random() * 20 - 10);
+          burstX = (i * 120) + (Math.random() * 40 - 20) + 200;
           tries++;
-        } while (isOverlappingAny(groundX, groundY, coinSize, coinSize) && tries < MAX_TRIES);
+        } while (isOverlappingAny(burstX, burstY, 150, 150) && tries < MAX_TRIES);
         if (tries < MAX_TRIES) {
-          coins.push(new Coin(groundX + (sweetsSpaceBetween * i), groundY, "sweet", SWEET_IMAGES, scaleRatio));
+          coins.push(new Coin(burstX, burstY, "sweet", SWEET_IMAGES, scaleRatio));
         }
-      }
-    } else if (sweetRand < 0.45) {
-      // Next 30%: random group (4-7) of sweets on ground at cactus level
-      const groundCount = Math.floor(Math.random() * 4) + 4; // 4 to 7 sweets
-      const groundY = GAME_HEIGHT * scaleRatio - coinSize - (IS_MOBILE_LANDSCAPE ? 25 : 36) * scaleRatio;
-      for (let i = 0; i < groundCount; i++) {
-        let tries = 0;
-        let groundX;
-        do {
-          groundX = x + i * (coinSize * 0.8) + (Math.random() * 20 - 10);
-          tries++;
-        } while (isOverlappingAny(groundX, groundY, coinSize, coinSize) && tries < MAX_TRIES);
-        if (tries < MAX_TRIES) {
-          coins.push(new Coin(groundX + (sweetsSpaceBetween * i), groundY, "sweet", SWEET_IMAGES, scaleRatio));
-        }
-      }
-    } else if (sweetRand < 0.99) {
-      // Next 9%: horizontal row group of sweets
-      const rowCount = Math.floor(Math.random() * 4) + 5; // 5 to 8 sweets in a row
-      const rowY = Math.random() * (maxY - minY) + minY;
-      for (let i = 0; i < rowCount; i++) {
-        let tries = 0;
-        let rowX;
-        do {
-          rowX = x + i * (coinSize * 0.8) + (Math.random() * 20 - 10);
-          tries++;
-        } while (isOverlappingAny(rowX, rowY, coinSize, coinSize) && tries < MAX_TRIES);
-        if (tries < MAX_TRIES) {
-          coins.push(new Coin(rowX + (sweetsSpaceBetween * i), rowY, "sweet", SWEET_IMAGES, scaleRatio));
-        }
-      }
-    } else {
-      // Otherwise: single sweet at random y (not a group)
-      let tries = 0;
-      let y, tryX;
-      do {
-        y = Math.random() * (maxY - minY) + minY;
-        tryX = x + (Math.random() * 20 - 10);
-        tries++;
-      } while (isOverlappingAny(tryX, y, coinSize, coinSize) && tries < MAX_TRIES);
-      if (tries < MAX_TRIES) {
-        coins.push(new Coin(tryX, y, "sweet", SWEET_IMAGES, scaleRatio));
       }
     }
+    // Main sweets logic
+    if (sweetRand < 0.18) {
+      // 18% chance to spawn a group of sweets with random gap
+      const groupCount = Math.floor(Math.random() * 2) + 3; // 3-4 sweets per group
+      const groundY = GAME_HEIGHT * scaleRatio - coinSize - (IS_MOBILE_LANDSCAPE ? 25 : 36) * scaleRatio;
+      const gapLength = Math.random() * 180 + 80; // random gap between groups (80-260px)
+      const groupStartX = x + Math.random() * 120;
+      for (let i = 0; i < groupCount; i++) {
+        let tries = 0;
+        let sweetX = groupStartX + i * gapLength;
+        let sweetY = groundY;
+        // Randomly raise one sweet in the group
+        if (Math.random() < 0.5 && i === Math.floor(Math.random() * groupCount)) {
+          sweetY -= 60 + Math.random() * 40; // 60-100px above ground
+        }
+        do {
+          tries++;
+        } while (isOverlappingAny(sweetX, sweetY, coinSize, coinSize) && tries < MAX_TRIES);
+        if (tries < MAX_TRIES) {
+          coins.push(new Coin(sweetX, sweetY, "sweet", SWEET_IMAGES, scaleRatio));
+        }
+      }
+    } else if (sweetRand < 0.28) {
+      // 10% chance: single sweet with random gap
+      const sweetX = x + Math.random() * 400;
+      const sweetY = GAME_HEIGHT * scaleRatio - coinSize - (IS_MOBILE_LANDSCAPE ? 25 : 36) * scaleRatio - (Math.random() < 0.5 ? (60 + Math.random() * 40) : 0);
+      let tries = 0;
+      do {
+        tries++;
+      } while (isOverlappingAny(sweetX, sweetY, coinSize, coinSize) && tries < MAX_TRIES);
+      if (tries < MAX_TRIES) {
+        coins.push(new Coin(sweetX, sweetY, "sweet", SWEET_IMAGES, scaleRatio));
+      }
+    } else if (sweetRand < 0.38) {
+      // 10% chance: group in air
+      const groupCount = Math.floor(Math.random() * 2) + 3; // 3-4 sweets
+      const rowY = Math.random() * (maxY - minY) + minY;
+      const gapLength = Math.random() * 180 + 80;
+      const groupStartX = x + Math.random() * 120;
+      for (let i = 0; i < groupCount; i++) {
+        let tries = 0;
+        let sweetX = groupStartX + i * gapLength;
+        let sweetY = rowY;
+        // Randomly raise one sweet in the group
+        if (Math.random() < 0.5 && i === Math.floor(Math.random() * groupCount)) {
+          sweetY -= 60 + Math.random() * 40;
+        }
+        do {
+          tries++;
+        } while (isOverlappingAny(sweetX, sweetY, coinSize, coinSize) && tries < MAX_TRIES);
+        if (tries < MAX_TRIES) {
+          coins.push(new Coin(sweetX, sweetY, "sweet", SWEET_IMAGES, scaleRatio));
+        }
+      }
+    } else if (sweetRand < 0.48) {
+      // 10% chance: single sweet in air
+      const sweetX = x + Math.random() * 400;
+      let sweetY = Math.random() * (maxY - minY) + minY - (Math.random() < 0.5 ? (60 + Math.random() * 40) : 0);
+      // Clamp sweetY to minY to avoid clipping at top
+      if (sweetY < minY) sweetY = minY;
+      let tries = 0;
+      do {
+        tries++;
+      } while (isOverlappingAny(sweetX, sweetY, coinSize, coinSize) && tries < MAX_TRIES);
+      if (tries < MAX_TRIES) {
+        coins.push(new Coin(sweetX, sweetY, "sweet", SWEET_IMAGES, scaleRatio));
+      }
+    }
+    // Otherwise, no sweets spawned (reduces overall count)
   } else {
     // Coin mode logic (unchanged)
     let tries = 0;
