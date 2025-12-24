@@ -11,7 +11,8 @@ const BOMB_EXPLOSION_IMAGES = [
 class Bomb {
   constructor(x, y, scaleRatio = 1) {
     this.x = x;
-    this.y = y;
+    // Increase bottom offset by adding to y
+    this.y = y - 10 * scaleRatio;
     // Maintain bomb image aspect ratio 279:316
     this.height = 30 * scaleRatio; // or any preferred height
     if (window.IS_MOBILE_LANDSCAPE) {
