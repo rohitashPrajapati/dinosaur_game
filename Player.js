@@ -247,8 +247,14 @@ export default class Player {
   draw() {
     // Draw the image in 'contain' mode (preserve aspect ratio, fit inside box)
     const img = this.image;
-    const boxWidth = this.width;
-    const boxHeight = this.height;
+    let boxWidth = this.width;
+    let boxHeight = this.height;
+    // Slightly decrease size for jump frames
+    const isJumpFrame = this.dinoJumpImages.includes(img);
+    if (isJumpFrame) {
+      boxWidth *= 0.88; // Decrease width by 8%
+      boxHeight *= 0.88; // Decrease height by 8%
+    }
     const imgAspect = img.naturalWidth / img.naturalHeight;
     const boxAspect = boxWidth / boxHeight;
     let drawWidth, drawHeight, offsetX, offsetY;
