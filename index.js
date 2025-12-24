@@ -800,7 +800,7 @@ function gameLoop(currentTime) {
       const groundY = GAME_HEIGHT * scaleRatio - 65 * scaleRatio;
       const bombHeight = 30 * scaleRatio;
       const bombWidth = (279 / 316) * bombHeight;
-      const MIN_BOMB_SAFE_GAP = 180 * scaleRatio; // reduce gap for more bombs
+      const MIN_BOMB_SAFE_GAP = 250 * scaleRatio; // reduce gap for more bombs
       let bombsToSpawn = 2 + Math.floor(Math.random() * 2); // 2-3 bombs per interval
       const cacti = cactiController && cactiController.getCactusRects ? cactiController.getCactusRects() : [];
       for (let i = 0; i < bombsToSpawn; i++) {
