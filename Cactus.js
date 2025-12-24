@@ -33,7 +33,7 @@ export default class Cactus {
   }
 
   collideWith(sprite) {
-    const adjustBy = 1.8;
+    const adjustBy = 1.5;
     if (
       sprite.x < this.x + this.width / adjustBy &&
       sprite.x + sprite.width / adjustBy > this.x &&

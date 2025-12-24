@@ -236,8 +236,8 @@ let GAME_WIDTH = ORIGINAL_GAME_WIDTH;
 let GAME_HEIGHT = ORIGINAL_GAME_HEIGHT;
 // const PLAYER_WIDTH = 67 / 1.5; //58
 // const PLAYER_HEIGHT = 100 / 1.5; //62
-const PLAYER_WIDTH = 75 * 1; //58
-const PLAYER_HEIGHT = 76 * 1; //62
+const PLAYER_WIDTH = 75 * 1.0; //58
+const PLAYER_HEIGHT = 76 * 1.0; //62
 const MAX_JUMP_HEIGHT = GAME_HEIGHT;
 const MIN_JUMP_HEIGHT = 150;
 const GROUND_WIDTH = 2400;
@@ -600,23 +600,23 @@ function spawnCoinOrSweet() {
     const sweetsSpaceBetween = IS_MOBILE_LANDSCAPE ? 30 : 0;
     const MAX_TRIES = 10;
     // Extra: At the very start of the game, spawn a burst of sweets
-    if (totalDistanceTravelled < 2000) {
-      // Spawn a big burst of sweets in the first 2000px
-      const burstCount = 10 + Math.floor(Math.random() * 6); // 10-15 sweets
-      const burstY = GAME_HEIGHT * scaleRatio - 150 - 24 * scaleRatio;
-      for (let i = 0; i < burstCount; i++) {
-        let tries = 0;
-        let burstX;
-        do {
-          burstX = (i * 120) + (Math.random() * 40 - 20) + 200;
-          tries++;
-        } while (isOverlappingAny(burstX, burstY, 150, 150) && tries < MAX_TRIES);
-        if (tries < MAX_TRIES) {
-          coins.push(new Coin(burstX, burstY, "sweet", SWEET_IMAGES, scaleRatio));
-        }
-      }
-      // Continue with normal logic as well
-    }
+    // if (totalDistanceTravelled < 2000) {
+    //   // Spawn a big burst of sweets in the first 2000px
+    //   const burstCount = 10 + Math.floor(Math.random() * 6); // 10-15 sweets
+    //   const burstY = GAME_HEIGHT * scaleRatio - 150 - (IS_MOBILE_LANDSCAPE ? 25 : 36) * scaleRatio;
+    //   for (let i = 0; i < burstCount; i++) {
+    //     let tries = 0;
+    //     let burstX;
+    //     do {
+    //       burstX = (i * 120) + (Math.random() * 40 - 20) + 200;
+    //       tries++;
+    //     } while (isOverlappingAny(burstX, burstY, 150, 150) && tries < MAX_TRIES);
+    //     if (tries < MAX_TRIES) {
+    //       coins.push(new Coin(burstX, burstY, "sweet", SWEET_IMAGES, scaleRatio));
+    //     }
+    //   }
+    //   // Continue with normal logic as well
+    // }
     if (sweetRand < 0.28) {
       // 60% chance to spawn a row of sweets on the ground at cactus level
       const groundCount = Math.floor(Math.random() * 4) + 4; // 4 to 7 sweets
@@ -635,7 +635,7 @@ function spawnCoinOrSweet() {
     } else if (sweetRand < 0.45) {
       // Next 30%: random group (4-7) of sweets on ground at cactus level
       const groundCount = Math.floor(Math.random() * 4) + 4; // 4 to 7 sweets
-      const groundY = GAME_HEIGHT * scaleRatio - coinSize - (IS_MOBILE_LANDSCAPE ? 25 : 28) * scaleRatio;
+      const groundY = GAME_HEIGHT * scaleRatio - coinSize - (IS_MOBILE_LANDSCAPE ? 25 : 36) * scaleRatio;
       for (let i = 0; i < groundCount; i++) {
         let tries = 0;
         let groundX;

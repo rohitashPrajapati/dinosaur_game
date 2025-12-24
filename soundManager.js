@@ -27,7 +27,7 @@ class SoundManager {
       jump: 'sound/jump.mp3',
       waterpit: 'sound/water_pit_touched.mp3',
       gameover: 'sound/death.mp3',
-      coin: 'sound/coin2.mp3',
+      coin: 'sound/sweets_eat.mp3',
     };
     for (const [name, url] of Object.entries(soundFiles)) {
       this._fetchAndDecode(name, url);
@@ -80,7 +80,7 @@ class SoundManager {
         source.buffer = buffer;
         const gain = this.context.createGain();
         // Set volume per sound
-        let volume = 0.05;
+        let volume = 0.50;
         if (name === 'jump') volume = 0.01;
         gain.gain.value = this._muted ? 0 : volume;
         source.connect(gain).connect(this.context.destination);

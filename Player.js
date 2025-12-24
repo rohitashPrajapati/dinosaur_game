@@ -1,8 +1,14 @@
 export default class Player {
-  WALK_ANIMATION_TIMER = 27;
+  WALK_ANIMATION_TIMER = 26;
   walkAnimationTimer = this.WALK_ANIMATION_TIMER;
+
   dinoRunImages = [];
   dinoRunImageIndex = 0;
+
+  dinoJumpImages = [];
+  dinoJumpImageIndex = 0;
+  JUMP_ANIMATION_TIMER = 40;
+  jumpAnimationTimer = this.JUMP_ANIMATION_TIMER;
 
   jumpPressed = false;
   jumpInProgress = false;
@@ -39,15 +45,27 @@ export default class Player {
     this.scaleRatio = scaleRatio;
 
     this.x = 10 * scaleRatio;
-    const BOTTOM_OFFSET = 31 * scaleRatio;
+    const BOTTOM_OFFSET = 45 * scaleRatio; // Changed bottom offset
     this.y = this.canvas.height - this.height - BOTTOM_OFFSET;
     this.yStandingPosition = this.y;
 
 
     this.standingStillImage = new Image();
     this.standingStillImage.src = "images/player/frame_000.png";
-    this.jumpImage = new Image();
-    this.jumpImage.src = "images/player/frame_011.png";
+
+    // Setup jump animation frames
+    const jumpImageSources = [];
+    for (let i = 0; i < 16; i++) {
+      const num = i.toString().padStart(3, '0');
+      jumpImageSources.push(`images/player_jump/frame_${num}.png`);
+    }
+    jumpImageSources.forEach(src => {
+      const img = new Image();
+      img.src = src;
+      this.dinoJumpImages.push(img);
+    });
+
+    this.jumpImage = this.dinoJumpImages[0];
     this.image = this.standingStillImage;
 
     // Add as many run images as you want here
@@ -164,18 +182,19 @@ export default class Player {
   };
 
   update(gameSpeed, frameTimeDelta) {
-    this.run(gameSpeed, frameTimeDelta);
-
     if (this.jumpInProgress) {
-      this.image = this.jumpImage;
+      this.animateJump(frameTimeDelta);
     } else {
+      this.run(gameSpeed, frameTimeDelta);
       // Only set to standingStillImage if not running (prevents run() from being overridden)
       if (!this.dinoRunImages.includes(this.image)) {
         this.image = this.standingStillImage;
       }
+      this.dinoJumpImageIndex = 0;
+      this.jumpAnimationTimer = this.JUMP_ANIMATION_TIMER;
     }
-
     this.jump(frameTimeDelta);
+
   }
 
   jump(frameTimeDelta) {
@@ -213,6 +232,16 @@ export default class Player {
       this.walkAnimationTimer = this.WALK_ANIMATION_TIMER;
     }
     this.walkAnimationTimer -= frameTimeDelta * gameSpeed;
+  }
+
+  animateJump(frameTimeDelta) {
+    // Animate jump frames
+    if (this.jumpAnimationTimer <= 0) {
+      this.dinoJumpImageIndex = (this.dinoJumpImageIndex + 1) % this.dinoJumpImages.length;
+      this.jumpAnimationTimer = this.JUMP_ANIMATION_TIMER;
+    }
+    this.image = this.dinoJumpImages[this.dinoJumpImageIndex];
+    this.jumpAnimationTimer -= frameTimeDelta;
   }
 
   draw() {

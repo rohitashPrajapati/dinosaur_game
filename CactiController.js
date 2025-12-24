@@ -45,7 +45,7 @@ export default class CactiController {
     const cactusImage = this.cactiImages[index];
     const x = this.canvas.width * 1.5;
     // Slightly reduce the bottom offset
-    const BOTTOM_OFFSET = 31 * this.scaleRatio;
+    const BOTTOM_OFFSET = 36.5 * this.scaleRatio;
     const y = this.canvas.height - cactusImage.height - BOTTOM_OFFSET;
     const cactus = new Cactus(
       this.ctx,
