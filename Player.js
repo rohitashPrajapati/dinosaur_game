@@ -1,4 +1,24 @@
 export default class Player {
+      reset() {
+        this.diedAnimationPlaying = false;
+        this.dinoDiedImageIndex = 0;
+        this.diedAnimationTimer = this.DIED_ANIMATION_TIMER;
+        this.dinoRunImageIndex = 0;
+        this.dinoJumpImageIndex = 0;
+        this.jumpAnimationTimer = this.JUMP_ANIMATION_TIMER;
+        this.walkAnimationTimer = this.WALK_ANIMATION_TIMER;
+        this.jumpPressed = false;
+        this.jumpInProgress = false;
+        this.falling = false;
+        this.image = this.standingStillImage;
+        // Optionally reset position if needed:
+        this.y = this.yStandingPosition;
+      }
+    dinoDiedImages = [];
+    dinoDiedImageIndex = 0;
+    diedAnimationPlaying = false;
+    DIED_ANIMATION_TIMER = 60;
+    diedAnimationTimer = this.DIED_ANIMATION_TIMER;
   WALK_ANIMATION_TIMER = 28;
   walkAnimationTimer = this.WALK_ANIMATION_TIMER;
 
@@ -19,6 +39,17 @@ export default class Player {
   constructor(ctx, width, height, minJumpHeight, maxJumpHeight, scaleRatio) {
     this.ctx = ctx;
     this.canvas = ctx.canvas;
+    // Setup died animation frames
+    const diedImageSources = [];
+    for (let i = 3; i < 16; i++) {
+      const num = i.toString().padStart(3, '0');
+      diedImageSources.push(`images/player_died/frame_${num}.png`);
+    }
+    diedImageSources.forEach(src => {
+      const img = new Image();
+      img.src = src;
+      this.dinoDiedImages.push(img);
+    });
     // Maintain player aspect ratio
     if (window.IS_MOBILE_LANDSCAPE) {
       this.width = 0;
@@ -182,6 +213,10 @@ export default class Player {
   };
 
   update(gameSpeed, frameTimeDelta) {
+    if (this.diedAnimationPlaying) {
+      this.animateDied(frameTimeDelta);
+      return;
+    }
     if (this.jumpInProgress) {
       this.animateJump(frameTimeDelta);
     } else {
@@ -194,7 +229,23 @@ export default class Player {
       this.jumpAnimationTimer = this.JUMP_ANIMATION_TIMER;
     }
     this.jump(frameTimeDelta);
+  }
 
+  startDiedAnimation() {
+    this.diedAnimationPlaying = true;
+    this.dinoDiedImageIndex = 0;
+    this.diedAnimationTimer = this.DIED_ANIMATION_TIMER;
+  }
+
+  animateDied(frameTimeDelta) {
+    if (this.diedAnimationTimer <= 0) {
+      if (this.dinoDiedImageIndex < this.dinoDiedImages.length - 1) {
+        this.dinoDiedImageIndex++;
+        this.diedAnimationTimer = this.DIED_ANIMATION_TIMER;
+      }
+    }
+    this.image = this.dinoDiedImages[this.dinoDiedImageIndex];
+    this.diedAnimationTimer -= frameTimeDelta;
   }
 
   jump(frameTimeDelta) {
@@ -247,36 +298,57 @@ export default class Player {
   draw() {
     // Draw the image in 'contain' mode (preserve aspect ratio, fit inside box)
     const img = this.image;
-    let boxWidth = this.width;
-    let boxHeight = this.height;
-    // Slightly decrease size for jump frames
-    const isJumpFrame = this.dinoJumpImages.includes(img);
-    if (isJumpFrame) {
-      boxWidth *= 0.88; // Decrease width by 8%
-      boxHeight *= 0.88; // Decrease height by 8%
-    }
-    const imgAspect = img.naturalWidth / img.naturalHeight;
-    const boxAspect = boxWidth / boxHeight;
     let drawWidth, drawHeight, offsetX, offsetY;
-    if (imgAspect > boxAspect) {
-      // Image is wider than box
-      drawWidth = boxWidth;
-      drawHeight = boxWidth / imgAspect;
-      offsetX = 0;
-      offsetY = (boxHeight - drawHeight) / 2;
+    if (this.diedAnimationPlaying) {
+      // Use the original image's natural size ratio, scale to player height
+      const aspect = img.naturalWidth / img.naturalHeight;
+      let sizeOffset = 1;
+      let drawY = this.y;
+      if (img.naturalWidth > img.naturalHeight) {
+        sizeOffset = 0.5; // Slightly decrease size for wider images
+        drawY = this.yStandingPosition + 160; // Place at ground level
+      }
+      drawHeight = this.height * sizeOffset;
+      drawWidth = drawHeight * aspect;
+      offsetX = (this.width - drawWidth) / 2;
+      this.ctx.drawImage(
+        img,
+        this.x + offsetX,
+        drawY,
+        drawWidth,
+        drawHeight
+      );
     } else {
-      // Image is taller than box
-      drawHeight = boxHeight;
-      drawWidth = boxHeight * imgAspect;
-      offsetX = (boxWidth - drawWidth) / 2;
-      offsetY = 0;
+      let boxWidth = this.width;
+      let boxHeight = this.height;
+      // Slightly decrease size for jump frames
+      const isJumpFrame = this.dinoJumpImages.includes(img);
+      if (isJumpFrame) {
+        boxWidth *= 0.88; // Decrease width by 8%
+        boxHeight *= 0.88; // Decrease height by 8%
+      }
+      const imgAspect = img.naturalWidth / img.naturalHeight;
+      const boxAspect = boxWidth / boxHeight;
+      if (imgAspect > boxAspect) {
+        // Image is wider than box
+        drawWidth = boxWidth;
+        drawHeight = boxWidth / imgAspect;
+        offsetX = 0;
+        offsetY = (boxHeight - drawHeight) / 2;
+      } else {
+        // Image is taller than box
+        drawHeight = boxHeight;
+        drawWidth = boxHeight * imgAspect;
+        offsetX = (boxWidth - drawWidth) / 2;
+        offsetY = 0;
+      }
+      this.ctx.drawImage(
+        img,
+        this.x + offsetX,
+        this.y + offsetY,
+        drawWidth,
+        drawHeight
+      );
     }
-    this.ctx.drawImage(
-      img,
-      this.x + offsetX,
-      this.y + offsetY,
-      drawWidth,
-      drawHeight
-    );
   }
 }

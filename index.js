@@ -486,6 +486,7 @@ function reset() {
   ground.reset();
   cactiController.reset();
   score.reset();
+  if (player && typeof player.reset === 'function') player.reset();
   gameSpeed = GAME_SPEED_START;
   coins = [];
   coinSpawnTimer = 0;
@@ -842,10 +843,15 @@ function gameLoop(currentTime) {
         let impactX = Math.max(player.x, bomb.x) + Math.min(player.width, bomb.width) / 2;
         let impactY = Math.max(player.y, bomb.y) + Math.min(player.height, bomb.height) / 2;
         showImpactImage(impactX, impactY);
-        gameOver = true;
-        setupGameReset();
-        score.setHighScore();
-        soundManager.play('gameover', 500);
+        if (!player.diedAnimationPlaying) {
+          player.startDiedAnimation();
+          setTimeout(() => {
+            gameOver = true;
+            setupGameReset();
+            score.setHighScore();
+            soundManager.play('gameover', 500);
+          }, 16 * player.DIED_ANIMATION_TIMER);
+        }
         break;
       }
     }
@@ -885,10 +891,15 @@ function gameLoop(currentTime) {
         let impactX = Math.max(player.x, ditch.x) + Math.min(player.width, ditch.width) / 2;
         let impactY = Math.max(player.y, ditch.y) + Math.min(player.height, ditch.height) / 2;
         showImpactImage(impactX, impactY);
-        gameOver = true;
-        setupGameReset();
-        score.setHighScore();
-        soundManager.play('gameover', 500);
+        if (!player.diedAnimationPlaying) {
+          player.startDiedAnimation();
+          setTimeout(() => {
+            gameOver = true;
+            setupGameReset();
+            score.setHighScore();
+            soundManager.play('gameover', 500);
+          }, 16 * player.DIED_ANIMATION_TIMER);
+        }
         break;
       }
     }
@@ -918,10 +929,15 @@ function gameLoop(currentTime) {
     if (impactX !== null && impactY !== null) {
       showImpactImage(impactX, impactY);
     }
-    gameOver = true;
-    setupGameReset();
-    score.setHighScore();
-    soundManager.play('gameover', 0);
+    if (!player.diedAnimationPlaying) {
+      player.startDiedAnimation();
+      setTimeout(() => {
+        gameOver = true;
+        setupGameReset();
+        score.setHighScore();
+        soundManager.play('gameover', 0);
+      }, 16 * player.DIED_ANIMATION_TIMER);
+    }
   }
 // Show impact image at given canvas coordinates
 function showImpactImage(x, y) {
