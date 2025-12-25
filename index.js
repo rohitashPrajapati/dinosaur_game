@@ -11,44 +11,82 @@ import soundManager from "./soundManager.js";
 
 // --- Sound Toggle Button ---
 function createSoundAndPauseButtons() {
+      // Add tap/click visual feedback
+      function addTapEffect(el) {
+        el.addEventListener('mousedown', () => {
+          el.style.transform = 'scale(0.88)';
+          el.style.opacity = '0.7';
+        });
+        el.addEventListener('mouseup', () => {
+          el.style.transform = '';
+          el.style.opacity = '';
+        });
+        el.addEventListener('mouseleave', () => {
+          el.style.transform = '';
+          el.style.opacity = '';
+        });
+        el.addEventListener('touchstart', () => {
+          el.style.transform = 'scale(0.88)';
+          el.style.opacity = '0.7';
+        }, {passive:true});
+        el.addEventListener('touchend', () => {
+          el.style.transform = '';
+          el.style.opacity = '';
+        });
+        el.addEventListener('touchcancel', () => {
+          el.style.transform = '';
+          el.style.opacity = '';
+        });
+      }
+
   // --- Sound Button ---
   let soundBtn = document.getElementById('sound-toggle-btn');
   if (!soundBtn) {
-    soundBtn = document.createElement('button');
+    soundBtn = document.createElement('img');
     soundBtn.id = 'sound-toggle-btn';
-    var soundOnSVG = '<svg id="sound-on-svg" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display:block; color:#3b59ff;"><path d="M20.522 7.228a6.74 6.74 0 0 1 0 9.544M7.5 15.75H3a.75.75 0 0 1-.75-.75V9A.75.75 0 0 1 3 8.25h4.5L14.25 3v18L7.5 15.75Zm0-7.5v7.5m10.369-5.869a2.99 2.99 0 0 1 0 4.238" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
-    var soundOffSVG = '<svg id="sound-off-svg" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="24" height="24" style="display:block; color:#3b59ff;"><path d="M27.363 9.637a8.988 8.988 0 0 1 0 12.726M10 11v10m13.825-7.825a3.99 3.99 0 0 1 0 5.65M6 5l20 22m-7-7.7V28l-9-7H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h6l.85-.662m3.175-2.463L19 4v9.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
-    soundBtn.innerHTML = soundOnSVG;
+    soundBtn.src = 'images/sound_on-min.png';
+    soundBtn.alt = 'Sound On';
+    // Essential styles for visibility and position
+    soundBtn.style.width = '48px';
+    soundBtn.style.height = '48px';
+    soundBtn.style.objectFit = 'contain';
+    soundBtn.style.display = 'block';
+    soundBtn.style.background = 'none';
+    soundBtn.style.border = 'none';
+    soundBtn.style.boxShadow = 'none';
+    soundBtn.style.padding = '0';
+    soundBtn.style.borderRadius = '0';
+    soundBtn.style.margin = '0';
+    soundBtn.style.outline = 'none';
     soundBtn.style.position = 'fixed';
     soundBtn.style.top = '24px';
     soundBtn.style.right = '24px';
-    soundBtn.style.zIndex = 3000;
-    function setBtnSize() {
-      if (window.IS_MOBILE_LANDSCAPE) {
-        soundBtn.style.width = '56px';
-        soundBtn.style.height = '32px';
-        soundBtn.style.borderRadius = '16px';
-      } else {
-        soundBtn.style.width = '80px';
-        soundBtn.style.height = '44px';
-        soundBtn.style.borderRadius = '22px';
-      }
-    }
-    setBtnSize();
-    window.addEventListener('resize', setBtnSize);
-    soundBtn.style.border = 'none';
-    soundBtn.style.background = '#fff';
-    soundBtn.style.display = 'flex';
-    soundBtn.style.alignItems = 'center';
-    soundBtn.style.justifyContent = 'center';
-    soundBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    soundBtn.style.zIndex = '3000';
     soundBtn.style.userSelect = 'none';
     soundBtn.style.cursor = 'pointer';
+    // Remove parent background, box-shadow, border-radius, and flex if any
+    if (soundBtn.parentElement) {
+      soundBtn.parentElement.style.background = 'none';
+      soundBtn.parentElement.style.boxShadow = 'none';
+      soundBtn.parentElement.style.border = 'none';
+      soundBtn.parentElement.style.borderRadius = '0';
+      soundBtn.parentElement.style.padding = '0';
+      soundBtn.parentElement.style.margin = '0';
+      soundBtn.parentElement.style.display = 'block';
+      soundBtn.parentElement.style.alignItems = '';
+      soundBtn.parentElement.style.justifyContent = '';
+      soundBtn.parentElement.style.position = '';
+      soundBtn.parentElement.style.top = '';
+      soundBtn.parentElement.style.right = '';
+      soundBtn.parentElement.style.zIndex = '';
+      soundBtn.parentElement.style.userSelect = '';
+    }
     soundBtn.setAttribute('aria-label', 'Toggle sound');
     let soundOn = true;
     soundBtn.onclick = () => {
       soundOn = !soundOn;
-      soundBtn.innerHTML = soundOn ? soundOnSVG : soundOffSVG;
+      soundBtn.src = soundOn ? 'images/sound_on-min.png' : 'images/sound_off-min.png';
+      soundBtn.alt = soundOn ? 'Sound On' : 'Sound Off';
       if (window.soundManager) {
         window.soundManager.setMuted(!soundOn);
       } else if (typeof soundManager !== 'undefined') {
@@ -56,28 +94,39 @@ function createSoundAndPauseButtons() {
       }
       soundBtn.blur();
     };
+
+    // Prevent tap/click on soundBtn from propagating to game
+    ['mousedown', 'mouseup', 'click', 'touchstart', 'touchend'].forEach(evt => {
+      soundBtn.addEventListener(evt, e => {
+        e.stopPropagation();
+      });
+    });
     document.body.appendChild(soundBtn);
+    addTapEffect(soundBtn);
   }
 
   // --- Pause Button ---
   let pauseBtn = document.getElementById('pause-btn');
   if (!pauseBtn) {
-    pauseBtn = document.createElement('button');
+    pauseBtn = document.createElement('img');
     pauseBtn.id = 'pause-btn';
-    pauseBtn.innerHTML = '<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display:block; color:#3b59ff;"><rect x="6" y="4" width="4" height="16" rx="2" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="2" fill="currentColor"/></svg>';
+    pauseBtn.src = 'images/pause-min.png';
+    pauseBtn.alt = 'Pause';
+    pauseBtn.style.width = '48px';
+    pauseBtn.style.height = '48px';
+    pauseBtn.style.objectFit = 'contain';
+    pauseBtn.style.display = 'block';
+    pauseBtn.style.background = 'none';
+    pauseBtn.style.border = 'none';
+    pauseBtn.style.boxShadow = 'none';
+    pauseBtn.style.padding = '0';
+    pauseBtn.style.borderRadius = '0';
+    pauseBtn.style.margin = '0';
+    pauseBtn.style.outline = 'none';
     pauseBtn.style.position = 'fixed';
     pauseBtn.style.top = '24px';
-    pauseBtn.style.right = '110px';
-    pauseBtn.style.zIndex = 3000;
-    pauseBtn.style.width = soundBtn ? soundBtn.style.width : '80px';
-    pauseBtn.style.height = soundBtn ? soundBtn.style.height : '44px';
-    pauseBtn.style.borderRadius = soundBtn ? soundBtn.style.borderRadius : '22px';
-    pauseBtn.style.border = 'none';
-    pauseBtn.style.background = '#fff';
-    pauseBtn.style.display = 'flex';
-    pauseBtn.style.alignItems = 'center';
-    pauseBtn.style.justifyContent = 'center';
-    pauseBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    pauseBtn.style.right = '80px';
+    pauseBtn.style.zIndex = '3000';
     pauseBtn.style.userSelect = 'none';
     pauseBtn.style.cursor = 'pointer';
     pauseBtn.setAttribute('aria-label', 'Pause game');
@@ -86,8 +135,57 @@ function createSoundAndPauseButtons() {
         pauseGame();
       }
     };
+    // Add tap effect
+    addTapEffect(pauseBtn);
+    // Prevent tap/click on pauseBtn from propagating to game
+    ['mousedown', 'mouseup', 'click', 'touchstart', 'touchend'].forEach(evt => {
+      pauseBtn.addEventListener(evt, e => {
+        e.stopPropagation();
+      });
+    });
     document.body.appendChild(pauseBtn);
   }
+// Utility to show resume button as image on overlay
+window.showResumeButtonOnOverlay = function showResumeButtonOnOverlay() {
+  // Remove any existing resume button
+  const oldBtn = document.getElementById('resume-btn');
+  if (oldBtn && oldBtn.parentElement) oldBtn.parentElement.removeChild(oldBtn);
+  // Find the pause popup
+  const pauseOverlay = document.getElementById('pause-overlay');
+  if (pauseOverlay) {
+    const popup = pauseOverlay.querySelector('div');
+    if (popup) {
+      const resumeBtn = document.createElement('img');
+      resumeBtn.id = 'resume-btn';
+      resumeBtn.src = 'images/play_button-min.png';
+      resumeBtn.alt = 'Resume';
+      resumeBtn.style.width = '64px';
+      resumeBtn.style.height = '64px';
+      resumeBtn.style.objectFit = 'contain';
+      resumeBtn.style.display = 'block';
+      resumeBtn.style.background = 'none';
+      resumeBtn.style.border = 'none';
+      resumeBtn.style.boxShadow = 'none';
+      resumeBtn.style.padding = '0';
+      resumeBtn.style.borderRadius = '0';
+      resumeBtn.style.margin = '24px auto 0 auto';
+      resumeBtn.style.outline = 'none';
+      resumeBtn.style.userSelect = 'none';
+      resumeBtn.style.cursor = 'pointer';
+      resumeBtn.setAttribute('aria-label', 'Resume game');
+      addTapEffect(resumeBtn);
+      ['mousedown', 'mouseup', 'click', 'touchstart', 'touchend'].forEach(evt => {
+        resumeBtn.addEventListener(evt, e => {
+          e.stopPropagation();
+        });
+      });
+      resumeBtn.onclick = () => {
+        resumeGame();
+      };
+      popup.appendChild(resumeBtn);
+    }
+  }
+}
 }
 
 // --- Auto-rotate to landscape on mobile ---
@@ -180,18 +278,10 @@ function pauseGame() {
     pauseText.style.color = '#3b59ff';
     pauseText.style.marginBottom = '24px';
     popup.appendChild(pauseText);
-    // Resume button
-    const resumeBtn = document.createElement('button');
-    resumeBtn.innerText = 'Resume';
-    resumeBtn.style.fontSize = '1.2rem';
-    resumeBtn.style.padding = '10px 32px';
-    resumeBtn.style.background = '#3b59ff';
-    resumeBtn.style.color = '#fff';
-    resumeBtn.style.border = 'none';
-    resumeBtn.style.borderRadius = '8px';
-    resumeBtn.style.cursor = 'pointer';
-    resumeBtn.onclick = resumeGame;
-    popup.appendChild(resumeBtn);
+    // Resume button as image
+    setTimeout(() => {
+      showResumeButtonOnOverlay();
+    }, 0);
     pauseOverlay.appendChild(popup);
     document.body.appendChild(pauseOverlay);
   } else {
