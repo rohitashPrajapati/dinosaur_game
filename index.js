@@ -838,6 +838,10 @@ function gameLoop(currentTime) {
       if (bomb.isColliding(player) && !bomb.collected && !bomb.exploding) {
         bomb.triggerExplosion();
         soundManager.play('explosion');
+        // Show impact image for bomb
+        let impactX = Math.max(player.x, bomb.x) + Math.min(player.width, bomb.width) / 2;
+        let impactY = Math.max(player.y, bomb.y) + Math.min(player.height, bomb.height) / 2;
+        showImpactImage(impactX, impactY);
         gameOver = true;
         setupGameReset();
         score.setHighScore();
@@ -877,6 +881,10 @@ function gameLoop(currentTime) {
         if (!player.jumpInProgress && !player.falling) {
           soundManager.play('waterpit');
         }
+        // Show impact image for water ditch
+        let impactX = Math.max(player.x, ditch.x) + Math.min(player.width, ditch.width) / 2;
+        let impactY = Math.max(player.y, ditch.y) + Math.min(player.height, ditch.height) / 2;
+        showImpactImage(impactX, impactY);
         gameOver = true;
         setupGameReset();
         score.setHighScore();
@@ -917,29 +925,32 @@ function gameLoop(currentTime) {
   }
 // Show impact image at given canvas coordinates
 function showImpactImage(x, y) {
+  // Always show above and in front of player's head
   const rect = canvas.getBoundingClientRect();
-  // Convert canvas coordinates to screen coordinates
-  const screenX = rect.left + x * (rect.width / canvas.width);
-  const screenY = rect.top + y * (rect.height / canvas.height);
+  // Player's head position: center-top of player
+  const playerHeadX = player.x + player.width * 0.7; // in front of face
+  const playerHeadY = player.y - player.height * 0.25; // above head
+  const screenX = rect.left + playerHeadX * (rect.width / canvas.width);
+  const screenY = rect.top + playerHeadY * (rect.height / canvas.height);
   let impactImg = document.getElementById('impact-img');
   if (impactImg) impactImg.remove();
   impactImg = document.createElement('img');
   impactImg.id = 'impact-img';
-  impactImg.src = 'images/impact.png';
+  impactImg.src = 'images/oh_snap.png';
   impactImg.style.position = 'absolute';
   impactImg.style.left = screenX + 'px';
   impactImg.style.top = screenY + 'px';
   impactImg.style.transform = 'translate(-50%, -50%) scale(1.2)';
   impactImg.style.zIndex = 2000;
   impactImg.style.pointerEvents = 'none';
-  impactImg.style.width = '60px';
-  impactImg.style.height = '60px';
+  impactImg.style.width = '102px'; // 512/5
+  impactImg.style.height = '74px'; // 371/5
   impactImg.style.opacity = '1';
   document.body.appendChild(impactImg);
   setTimeout(() => {
     if (impactImg) impactImg.style.opacity = '0';
     setTimeout(() => impactImg && impactImg.remove(), 400);
-  }, 400);
+  }, 1000);
 }
 
   //Draw game objects
