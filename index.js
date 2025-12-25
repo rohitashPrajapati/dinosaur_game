@@ -274,6 +274,7 @@ const SWEET_IMAGES = [
   "images/sweet_6.png",
   "images/sweet_7.png",
   "images/sweet_8.png",
+  "images/sweet_9.png",
 ];
 
 let player = null;
