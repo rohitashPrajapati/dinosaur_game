@@ -375,7 +375,7 @@ function setScreen() {
   let cssW, cssH, scale;
   if (IS_MOBILE_LANDSCAPE) {
     // Reduce cactus size for mobile landscape
-    const scaleFactor = 1.6;
+    const scaleFactor = 2;
     CACTI_CONFIG = [
       { width: 48 / scaleFactor, height: 100 / scaleFactor, image: "images/cactus_1.png" },
       { width: 98 / scaleFactor, height: 100 / scaleFactor, image: "images/cactus_2.png" },
@@ -604,7 +604,7 @@ function spawnCoinOrSweet() {
     // Reduce burst sweets at start
     if (totalDistanceTravelled < 2000) {
       const burstCount = 3 + Math.floor(Math.random() * 2); // 3-4 sweets
-      const burstY = GAME_HEIGHT * scaleRatio - 150 - (IS_MOBILE_LANDSCAPE ? 25 : 36) * scaleRatio;
+      const burstY = GAME_HEIGHT * scaleRatio - 150 - (IS_MOBILE_LANDSCAPE ? 30 : 36) * scaleRatio;
       for (let i = 0; i < burstCount; i++) {
         let tries = 0;
         let burstX;
@@ -621,7 +621,7 @@ function spawnCoinOrSweet() {
     if (sweetRand < 0.18) {
       // 18% chance to spawn a group of sweets with random gap
       const groupCount = Math.floor(Math.random() * 2) + 3; // 3-4 sweets per group
-      const groundY = GAME_HEIGHT * scaleRatio - coinSize - (IS_MOBILE_LANDSCAPE ? 25 : 36) * scaleRatio;
+      const groundY = GAME_HEIGHT * scaleRatio - coinSize - (IS_MOBILE_LANDSCAPE ? 30 : 36) * scaleRatio;
       const gapLength = Math.random() * 180 + 80; // random gap between groups (80-260px)
       const groupStartX = x + Math.random() * 120;
       for (let i = 0; i < groupCount; i++) {
@@ -642,7 +642,7 @@ function spawnCoinOrSweet() {
     } else if (sweetRand < 0.28) {
       // 10% chance: single sweet with random gap
       const sweetX = x + Math.random() * 400;
-      const sweetY = GAME_HEIGHT * scaleRatio - coinSize - (IS_MOBILE_LANDSCAPE ? 25 : 36) * scaleRatio - (Math.random() < 0.5 ? (60 + Math.random() * 40) : 0);
+      const sweetY = GAME_HEIGHT * scaleRatio - coinSize - (IS_MOBILE_LANDSCAPE ? 30 : 36) * scaleRatio - (Math.random() < 0.5 ? (60 + Math.random() * 40) : 0);
       let tries = 0;
       do {
         tries++;
@@ -977,8 +977,13 @@ function showImpactImage(x, y) {
   impactImg.style.transform = 'translate(-50%, -50%) scale(1.2)';
   impactImg.style.zIndex = 2000;
   impactImg.style.pointerEvents = 'none';
-  impactImg.style.width = '153px'; // 512/5
-  impactImg.style.height = '111px'; // 371/5
+  if (window.IS_MOBILE_LANDSCAPE) {
+    impactImg.style.width = '70px';
+    impactImg.style.height = '50px';
+  } else {
+    impactImg.style.width = '153px'; // 512/5
+    impactImg.style.height = '111px'; // 371/5
+  }
   impactImg.style.opacity = '1';
   document.body.appendChild(impactImg);
   setTimeout(() => {

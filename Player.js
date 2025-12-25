@@ -55,7 +55,7 @@ export default class Player {
       this.width = 0;
       this.height = 0;
       this.standingStillImage = new Image();
-      this.standingStillImage.src = "images/player3.png";
+      this.standingStillImage.src = "images/player_standing.png";
       this.standingStillImage.onload = () => {
         const aspect = this.standingStillImage.naturalWidth / this.standingStillImage.naturalHeight;
         this.height = height;
@@ -82,7 +82,7 @@ export default class Player {
 
 
     this.standingStillImage = new Image();
-    this.standingStillImage.src = "images/player/frame_000.png";
+    this.standingStillImage.src = "images/player_standing.png";
 
     // Setup jump animation frames
     const jumpImageSources = [];
