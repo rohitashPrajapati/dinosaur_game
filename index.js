@@ -838,11 +838,13 @@ function gameLoop(currentTime) {
     for (const bomb of bombs) {
       if (bomb.isColliding(player) && !bomb.collected && !bomb.exploding) {
         bomb.triggerExplosion();
+        bomb.visible = false; // Hide bomb image, but keep for explosion animation
         soundManager.play('explosion');
         // Show impact image for bomb
         let impactX = Math.max(player.x, bomb.x) + Math.min(player.width, bomb.width) / 2;
         let impactY = Math.max(player.y, bomb.y) + Math.min(player.height, bomb.height) / 2;
         showImpactImage(impactX, impactY);
+        // Do not remove the bomb immediately; let it finish its explosion animation
         if (!player.diedAnimationPlaying) {
           player.startDiedAnimation();
           setTimeout(() => {
@@ -959,8 +961,8 @@ function showImpactImage(x, y) {
   impactImg.style.transform = 'translate(-50%, -50%) scale(1.2)';
   impactImg.style.zIndex = 2000;
   impactImg.style.pointerEvents = 'none';
-  impactImg.style.width = '102px'; // 512/5
-  impactImg.style.height = '74px'; // 371/5
+  impactImg.style.width = '153px'; // 512/5
+  impactImg.style.height = '111px'; // 371/5
   impactImg.style.opacity = '1';
   document.body.appendChild(impactImg);
   setTimeout(() => {
