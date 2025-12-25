@@ -41,12 +41,22 @@ function createSoundAndPauseButtons() {
 
   // --- Sound Button ---
   let soundBtn = document.getElementById('sound-toggle-btn');
+  const canvas = document.getElementById('game');
+  let container = document.getElementById('game-canvas-container');
+  if (!container && canvas) {
+    // fallback: wrap canvas if container not found (should not happen)
+    container = document.createElement('div');
+    container.id = 'game-canvas-container';
+    container.style.position = 'relative';
+    container.style.display = 'inline-block';
+    canvas.parentNode.insertBefore(container, canvas);
+    container.appendChild(canvas);
+  }
   if (!soundBtn) {
     soundBtn = document.createElement('img');
     soundBtn.id = 'sound-toggle-btn';
     soundBtn.src = 'images/sound_on-min.png';
     soundBtn.alt = 'Sound On';
-    // Essential styles for visibility and position
     soundBtn.style.width = '48px';
     soundBtn.style.height = '48px';
     soundBtn.style.objectFit = 'contain';
@@ -58,29 +68,12 @@ function createSoundAndPauseButtons() {
     soundBtn.style.borderRadius = '0';
     soundBtn.style.margin = '0';
     soundBtn.style.outline = 'none';
-    soundBtn.style.position = 'fixed';
-    soundBtn.style.top = '24px';
-    soundBtn.style.right = '24px';
-    soundBtn.style.zIndex = '3000';
+    soundBtn.style.position = 'absolute';
+    soundBtn.style.top = '16px';
+    soundBtn.style.right = '16px';
+    soundBtn.style.zIndex = '10';
     soundBtn.style.userSelect = 'none';
     soundBtn.style.cursor = 'pointer';
-    // Remove parent background, box-shadow, border-radius, and flex if any
-    if (soundBtn.parentElement) {
-      soundBtn.parentElement.style.background = 'none';
-      soundBtn.parentElement.style.boxShadow = 'none';
-      soundBtn.parentElement.style.border = 'none';
-      soundBtn.parentElement.style.borderRadius = '0';
-      soundBtn.parentElement.style.padding = '0';
-      soundBtn.parentElement.style.margin = '0';
-      soundBtn.parentElement.style.display = 'block';
-      soundBtn.parentElement.style.alignItems = '';
-      soundBtn.parentElement.style.justifyContent = '';
-      soundBtn.parentElement.style.position = '';
-      soundBtn.parentElement.style.top = '';
-      soundBtn.parentElement.style.right = '';
-      soundBtn.parentElement.style.zIndex = '';
-      soundBtn.parentElement.style.userSelect = '';
-    }
     soundBtn.setAttribute('aria-label', 'Toggle sound');
     let soundOn = true;
     soundBtn.onclick = () => {
@@ -94,15 +87,15 @@ function createSoundAndPauseButtons() {
       }
       soundBtn.blur();
     };
-
-    // Prevent tap/click on soundBtn from propagating to game
     ['mousedown', 'mouseup', 'click', 'touchstart', 'touchend'].forEach(evt => {
       soundBtn.addEventListener(evt, e => {
         e.stopPropagation();
       });
     });
-    document.body.appendChild(soundBtn);
     addTapEffect(soundBtn);
+    if (container) {
+      container.appendChild(soundBtn);
+    }
   }
 
   // --- Pause Button ---
@@ -123,10 +116,10 @@ function createSoundAndPauseButtons() {
     pauseBtn.style.borderRadius = '0';
     pauseBtn.style.margin = '0';
     pauseBtn.style.outline = 'none';
-    pauseBtn.style.position = 'fixed';
-    pauseBtn.style.top = '24px';
-    pauseBtn.style.right = '80px';
-    pauseBtn.style.zIndex = '3000';
+    pauseBtn.style.position = 'absolute';
+    pauseBtn.style.top = '16px';
+    pauseBtn.style.right = '72px';
+    pauseBtn.style.zIndex = '10';
     pauseBtn.style.userSelect = 'none';
     pauseBtn.style.cursor = 'pointer';
     pauseBtn.setAttribute('aria-label', 'Pause game');
@@ -135,15 +128,15 @@ function createSoundAndPauseButtons() {
         pauseGame();
       }
     };
-    // Add tap effect
     addTapEffect(pauseBtn);
-    // Prevent tap/click on pauseBtn from propagating to game
     ['mousedown', 'mouseup', 'click', 'touchstart', 'touchend'].forEach(evt => {
       pauseBtn.addEventListener(evt, e => {
         e.stopPropagation();
       });
     });
-    document.body.appendChild(pauseBtn);
+    if (container) {
+      container.appendChild(pauseBtn);
+    }
   }
 // Utility to show resume button as image on overlay
 window.showResumeButtonOnOverlay = function showResumeButtonOnOverlay() {
