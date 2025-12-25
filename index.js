@@ -302,8 +302,15 @@ let waterDitches = [];
 let waterDitchSpawnDistance = 6000; // Start ditches after a long initial distance
 let lastDitchSpawnDistance = 0; // Track distance at which last ditch was spawned
 let totalDistanceTravelled = 0; // Track total ground distance travelled
-const WATERDITCH_MIN_DISTANCE = 4000; // px, min distance between ditches (increased)
-const WATERDITCH_MAX_DISTANCE = 8000; // px, max distance between ditches (increased)
+let IS_MOBILE_LANDSCAPE = false;
+function isMobileLandscape() {
+  return /Mobi|Android/i.test(navigator.userAgent) && window.matchMedia(
+    '(orientation: landscape) and (max-width: 900px)'
+  ).matches;
+}
+IS_MOBILE_LANDSCAPE = isMobileLandscape();
+let WATERDITCH_MIN_DISTANCE = IS_MOBILE_LANDSCAPE ? 6000 : 4000; // px, min distance between ditches (much larger for mobile landscape)
+let WATERDITCH_MAX_DISTANCE = IS_MOBILE_LANDSCAPE ? 12000 : 8000; // px, max distance between ditches (much larger for mobile landscape)
 
 
 const canvas = document.getElementById("game");
@@ -444,16 +451,12 @@ function createSprites() {
   totalDistanceTravelled = 0;
 }
 
-let IS_MOBILE_LANDSCAPE = false;
-
-function isMobileLandscape() {
-  return /Mobi|Android/i.test(navigator.userAgent) && window.matchMedia(
-    '(orientation: landscape) and (max-width: 900px)'
-  ).matches;
-}
+// ...existing code...
 
 function setScreen() {
   IS_MOBILE_LANDSCAPE = isMobileLandscape();
+  WATERDITCH_MIN_DISTANCE = IS_MOBILE_LANDSCAPE ? 6000 : 4000;
+  WATERDITCH_MAX_DISTANCE = IS_MOBILE_LANDSCAPE ? 12000 : 8000;
   const dpr = window.devicePixelRatio || 1;
   let cssW, cssH, scale;
   if (IS_MOBILE_LANDSCAPE) {
@@ -835,7 +838,7 @@ function gameLoop(currentTime) {
     if (totalDistanceTravelled - lastDitchSpawnDistance > waterDitchSpawnDistance) {
       const groundY = GAME_HEIGHT * scaleRatio - GROUND_HEIGHT * scaleRatio;
       const ditchX = GAME_WIDTH * scaleRatio;
-      const SAFE_DIST = IS_MOBILE_LANDSCAPE ? 600 * scaleRatio : 350 * scaleRatio;
+      const SAFE_DIST = IS_MOBILE_LANDSCAPE ? 900 * scaleRatio : 350 * scaleRatio; // much larger safe area for mobile landscape
       let canSpawn = true;
       if (cactiController && cactiController.getCactusRects) {
         const cactiRects = cactiController.getCactusRects();
@@ -885,7 +888,7 @@ function gameLoop(currentTime) {
       const groundY = GAME_HEIGHT * scaleRatio - 65 * scaleRatio;
       const bombHeight = 30 * scaleRatio;
       const bombWidth = (279 / 316) * bombHeight;
-      const MIN_BOMB_SAFE_GAP = IS_MOBILE_LANDSCAPE ? 500 * scaleRatio : 250 * scaleRatio; // much larger gap for mobile landscape
+      const MIN_BOMB_SAFE_GAP = IS_MOBILE_LANDSCAPE ? 900 * scaleRatio : 250 * scaleRatio; // much larger gap for mobile landscape
       let bombsToSpawn = 2 + Math.floor(Math.random() * 2); // 2-3 bombs per interval
       const cacti = cactiController && cactiController.getCactusRects ? cactiController.getCactusRects() : [];
       for (let i = 0; i < bombsToSpawn; i++) {

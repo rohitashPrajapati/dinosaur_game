@@ -11,8 +11,8 @@ export default class CactiController {
       height: cactus.height
     }));
   }
-  CACTUS_INTERVAL_MIN = window.IS_MOBILE_LANDSCAPE ? 2600 : 1800;
-  CACTUS_INTERVAL_MAX = window.IS_MOBILE_LANDSCAPE ? 3200 : 2200;
+  CACTUS_INTERVAL_MIN = window.IS_MOBILE_LANDSCAPE ? 3400 : 1800;
+  CACTUS_INTERVAL_MAX = window.IS_MOBILE_LANDSCAPE ? 4200 : 2200;
 
   nextCactusInterval = null;
   cacti = [];
