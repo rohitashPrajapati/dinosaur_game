@@ -842,7 +842,7 @@ function gameLoop(currentTime) {
     if (totalDistanceTravelled - lastDitchSpawnDistance > waterDitchSpawnDistance) {
       const groundY = GAME_HEIGHT * scaleRatio - GROUND_HEIGHT * scaleRatio;
       const ditchX = GAME_WIDTH * scaleRatio;
-      const SAFE_DIST = 350 * scaleRatio;
+      const SAFE_DIST = IS_MOBILE_LANDSCAPE ? 600 * scaleRatio : 350 * scaleRatio;
       let canSpawn = true;
       if (cactiController && cactiController.getCactusRects) {
         const cactiRects = cactiController.getCactusRects();
@@ -892,7 +892,7 @@ function gameLoop(currentTime) {
       const groundY = GAME_HEIGHT * scaleRatio - 65 * scaleRatio;
       const bombHeight = 30 * scaleRatio;
       const bombWidth = (279 / 316) * bombHeight;
-      const MIN_BOMB_SAFE_GAP = 250 * scaleRatio; // reduce gap for more bombs
+      const MIN_BOMB_SAFE_GAP = IS_MOBILE_LANDSCAPE ? 500 * scaleRatio : 250 * scaleRatio; // much larger gap for mobile landscape
       let bombsToSpawn = 2 + Math.floor(Math.random() * 2); // 2-3 bombs per interval
       const cacti = cactiController && cactiController.getCactusRects ? cactiController.getCactusRects() : [];
       for (let i = 0; i < bombsToSpawn; i++) {

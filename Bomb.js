@@ -10,6 +10,10 @@ const BOMB_EXPLOSION_IMAGES = [
 
 class Bomb {
   constructor(x, y, scaleRatio = 1) {
+    // On mobile landscape, increase safe distance from cactus (shift bomb further right)
+    if (window.IS_MOBILE_LANDSCAPE) {
+      x += 120 * scaleRatio;
+    }
     this.x = x;
     // Increase bottom offset by adding to y
     this.y = y - 10 * scaleRatio;
