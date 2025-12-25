@@ -1093,10 +1093,11 @@ function showImpactImage(x, y) {
   bombs.forEach((bomb) => bomb.draw(ctx));
   player.draw();
   coins.forEach((coin) => coin.draw(ctx));
-  score.draw();
-
   if (gameOver) {
     showGameOver();
+    score.draw();
+  } else {
+    score.draw();
   }
 
   if (waitingToStart) {
