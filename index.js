@@ -486,6 +486,7 @@ function reset() {
   ground.reset();
   cactiController.reset();
   score.reset();
+  if (player && typeof player.reset === 'function') player.reset();
   gameSpeed = GAME_SPEED_START;
   coins = [];
   coinSpawnTimer = 0;
@@ -837,15 +838,22 @@ function gameLoop(currentTime) {
     for (const bomb of bombs) {
       if (bomb.isColliding(player) && !bomb.collected && !bomb.exploding) {
         bomb.triggerExplosion();
+        bomb.visible = false; // Hide bomb image, but keep for explosion animation
         soundManager.play('explosion');
         // Show impact image for bomb
         let impactX = Math.max(player.x, bomb.x) + Math.min(player.width, bomb.width) / 2;
         let impactY = Math.max(player.y, bomb.y) + Math.min(player.height, bomb.height) / 2;
         showImpactImage(impactX, impactY);
-        gameOver = true;
-        setupGameReset();
-        score.setHighScore();
-        soundManager.play('gameover', 500);
+        // Do not remove the bomb immediately; let it finish its explosion animation
+        if (!player.diedAnimationPlaying) {
+          player.startDiedAnimation();
+          setTimeout(() => {
+            gameOver = true;
+            setupGameReset();
+            score.setHighScore();
+            soundManager.play('gameover', 500);
+          }, 16 * player.DIED_ANIMATION_TIMER);
+        }
         break;
       }
     }
@@ -885,10 +893,15 @@ function gameLoop(currentTime) {
         let impactX = Math.max(player.x, ditch.x) + Math.min(player.width, ditch.width) / 2;
         let impactY = Math.max(player.y, ditch.y) + Math.min(player.height, ditch.height) / 2;
         showImpactImage(impactX, impactY);
-        gameOver = true;
-        setupGameReset();
-        score.setHighScore();
-        soundManager.play('gameover', 500);
+        if (!player.diedAnimationPlaying) {
+          player.startDiedAnimation();
+          setTimeout(() => {
+            gameOver = true;
+            setupGameReset();
+            score.setHighScore();
+            soundManager.play('gameover', 500);
+          }, 16 * player.DIED_ANIMATION_TIMER);
+        }
         break;
       }
     }
@@ -918,10 +931,15 @@ function gameLoop(currentTime) {
     if (impactX !== null && impactY !== null) {
       showImpactImage(impactX, impactY);
     }
-    gameOver = true;
-    setupGameReset();
-    score.setHighScore();
-    soundManager.play('gameover', 0);
+    if (!player.diedAnimationPlaying) {
+      player.startDiedAnimation();
+      setTimeout(() => {
+        gameOver = true;
+        setupGameReset();
+        score.setHighScore();
+        soundManager.play('gameover', 0);
+      }, 16 * player.DIED_ANIMATION_TIMER);
+    }
   }
 // Show impact image at given canvas coordinates
 function showImpactImage(x, y) {
@@ -943,8 +961,8 @@ function showImpactImage(x, y) {
   impactImg.style.transform = 'translate(-50%, -50%) scale(1.2)';
   impactImg.style.zIndex = 2000;
   impactImg.style.pointerEvents = 'none';
-  impactImg.style.width = '102px'; // 512/5
-  impactImg.style.height = '74px'; // 371/5
+  impactImg.style.width = '153px'; // 512/5
+  impactImg.style.height = '111px'; // 371/5
   impactImg.style.opacity = '1';
   document.body.appendChild(impactImg);
   setTimeout(() => {

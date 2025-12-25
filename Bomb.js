@@ -62,17 +62,19 @@ class Bomb {
   }
 
   draw(ctx) {
-    if (!this.visible) return;
-    if (this.exploding && this.explosionFrame < BOMB_EXPLOSION_IMAGES.length) {
-      const img = new Image();
-      img.src = BOMB_EXPLOSION_IMAGES[this.explosionFrame];
-      // Center the explosion on the bomb
-      const ex = this.x + (this.width - this.explosionWidth) / 2;
-      const ey = this.y + (this.height - this.explosionHeight) / 2;
-      ctx.drawImage(img, ex, ey, this.explosionWidth, this.explosionHeight);
-    } else {
-      ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+    if (this.exploding) {
+      if (this.explosionFrame < BOMB_EXPLOSION_IMAGES.length) {
+        const img = new Image();
+        img.src = BOMB_EXPLOSION_IMAGES[this.explosionFrame];
+        // Center the explosion on the bomb
+        const ex = this.x + (this.width - this.explosionWidth) / 2;
+        const ey = this.y + (this.height - this.explosionHeight) / 2;
+        ctx.drawImage(img, ex, ey, this.explosionWidth, this.explosionHeight);
+      }
+      return;
     }
+    if (!this.visible) return;
+    ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
   }
 
   triggerExplosion() {
