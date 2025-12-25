@@ -287,7 +287,7 @@ const COIN_SPAWN_INTERVAL = 500; // ms (further reduced interval for even more s
 
 let bombs = [];
 let bombSpawnTimer = 0;
-const BOMB_SPAWN_INTERVAL = 1200; // ms, reduced interval for more frequent bombs
+const BOMB_SPAWN_INTERVAL = 1500; // ms, reduced interval for more frequent bombs
 
 let snailController = null;
 
@@ -866,24 +866,33 @@ function gameLoop(currentTime) {
         score.score += coin.scoreValue;
         soundManager.play('coin');
         if (coin.type === "sweet") {
+          // Track sweet collection for celebration logic
           window.sweetsCollected.push({
             ts: now,
             x: coin.x + coin.width / 2,
-            y: coin.y + coin.height / 2
+            y: coin.y + coin.height / 2,
+            sweetSrc: coin.image.src
           });
         }
       }
     });
     window.sweetsCollected = window.sweetsCollected.filter(obj => now - obj.ts < 1000);
-    if (window.sweetsCollected.length >= 5) {
+    // Show celebration image only when 3 continuous sweets are collected
+    if (window.sweetsCollected.length >= 3) {
+      // Check if last 3 sweets are close enough in time (continuous) and are the same sweet
       const last3 = window.sweetsCollected.slice(-3);
-      const avgX = Math.round(last3.reduce((sum, obj) => sum + obj.x, 0) / 3);
-      const avgY = Math.round(last3.reduce((sum, obj) => sum + obj.y, 0) / 3);
-      const rect = canvas.getBoundingClientRect();
-      const screenX = rect.left + avgX * (rect.width / canvas.width);
-      const screenY = rect.top + avgY * (rect.height / canvas.height);
-      showSweetPop(screenX, screenY);
-      window.sweetsCollected = [];
+      const allSame = last3.every(obj => obj.sweetSrc === last3[0].sweetSrc);
+      if (allSame && last3[2].ts - last3[0].ts < 1200) { // 1.2s window for continuity
+        if (!document.getElementById('impact-img')) {
+          const avgX = Math.round(last3.reduce((sum, obj) => sum + obj.x, 0) / 3);
+          const avgY = Math.round(last3.reduce((sum, obj) => sum + obj.y, 0) / 3);
+          const rect = canvas.getBoundingClientRect();
+          const screenX = rect.left + avgX * (rect.width / canvas.width);
+          const screenY = rect.top + avgY * (rect.height / canvas.height);
+          showSweetPop(screenX, screenY);
+        }
+        window.sweetsCollected = [];
+      }
     }
     for (const ditch of waterDitches) {
       if (ditch.isColliding(player)) {
@@ -913,6 +922,7 @@ function gameLoop(currentTime) {
   if (!gameOver && cactiController.collideWith(player)) {
     // Find the colliding cactus
     let impactX = null, impactY = null;
+    let collided = false;
     for (const cactus of cactiController.cacti) {
       if (cactus.collideWith(player)) {
         // Impact position: center of overlap
@@ -926,13 +936,15 @@ function gameLoop(currentTime) {
           impactY += Math.min(player.height, cactus.height) / 2;
         }
         impactX += Math.min(player.width, cactus.width) / 2;
+        collided = true;
         break;
       }
     }
     if (impactX !== null && impactY !== null) {
       showImpactImage(impactX, impactY);
     }
-    if (!player.diedAnimationPlaying) {
+    if (collided && !player.diedAnimationPlaying) {
+      soundManager.play('cactus', 0); // Play death sound immediately
       player.startDiedAnimation();
       setTimeout(() => {
         gameOver = true;
@@ -951,6 +963,9 @@ function showImpactImage(x, y) {
   const playerHeadY = player.y - player.height * 0.25; // above head
   const screenX = rect.left + playerHeadX * (rect.width / canvas.width);
   const screenY = rect.top + playerHeadY * (rect.height / canvas.height);
+  // Remove celebration image if present
+  let sweetPopImg = document.getElementById('sweet-pop');
+  if (sweetPopImg) sweetPopImg.remove();
   let impactImg = document.getElementById('impact-img');
   if (impactImg) impactImg.remove();
   impactImg = document.createElement('img');

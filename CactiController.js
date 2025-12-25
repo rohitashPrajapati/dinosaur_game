@@ -11,8 +11,8 @@ export default class CactiController {
       height: cactus.height
     }));
   }
-  CACTUS_INTERVAL_MIN = 500;
-  CACTUS_INTERVAL_MAX = 2000;
+  CACTUS_INTERVAL_MIN = 1800;
+  CACTUS_INTERVAL_MAX = 2200;
 
   nextCactusInterval = null;
   cacti = [];

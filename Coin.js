@@ -32,11 +32,18 @@ class Coin {
           this._imageReady = true;
         }
       } else {
-        // sweets: pick a random sweet image
-        const sweetSrc = sweetImages.length > 0 ? sweetImages[Math.floor(Math.random() * sweetImages.length)] : "images/sweet_1.png";
+        // sweets: pick a random sweet image and assign score based on image
+        let sweetIndex = 0;
+        let sweetSrc = "images/sweet_1.png";
+        if (sweetImages.length > 0) {
+          sweetIndex = Math.floor(Math.random() * sweetImages.length);
+          sweetSrc = sweetImages[sweetIndex];
+        }
         this.image = new Image();
         this.image.src = sweetSrc;
-        this.scoreValue = 200;
+        // Assign different scores for each sweet image
+        const sweetScores = [200, 50, 100, 200, 250, 200, 100, 200, 500];
+        this.scoreValue = sweetScores[sweetIndex] || 200;
         // Maintain sweet aspect ratio (assume square for sweet)
         const sweetSize = (isMobile ? 25 : 25) * scaleRatio;
         if (window.IS_MOBILE_LANDSCAPE) {

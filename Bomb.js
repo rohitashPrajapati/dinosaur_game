@@ -86,8 +86,8 @@ class Bomb {
 
   isColliding(player) {
     // Shrink bomb collision box by 30% on all sides
-    const shrinkW = this.width * 0.15;
-    const shrinkH = this.height * 0.15;
+    const shrinkW = this.width * 0.30;
+    const shrinkH = this.height * 0.30;
     const bombX = this.x + shrinkW;
     const bombY = this.y + shrinkH;
     const bombW = this.width - 2 * shrinkW;

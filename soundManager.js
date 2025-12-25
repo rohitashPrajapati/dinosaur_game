@@ -26,7 +26,8 @@ class SoundManager {
       explosion: 'sound/explosion.mp3',
       jump: 'sound/jump.mp3',
       waterpit: 'sound/water_pit_touched.mp3',
-      gameover: 'sound/death.mp3',
+      gameover: 'sound/gameover_new.mp3',
+      cactus: 'sound/death.mp3',
       coin: 'sound/sweets_eat.mp3',
     };
     for (const [name, url] of Object.entries(soundFiles)) {

@@ -9,7 +9,7 @@ export default class Score {
   }
 
   update(frameTimeDelta) {
-    this.score += frameTimeDelta * 0.01;
+    this.score += frameTimeDelta * 0.03; // Increased running score rate
   }
 
   reset() {
