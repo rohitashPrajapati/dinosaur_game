@@ -474,7 +474,7 @@ function setScreen() {
     const screenW = window.innerWidth;
     const screenH = window.innerHeight;
     GAME_HEIGHT = ORIGINAL_GAME_HEIGHT;
-    GAME_WIDTH = Math.min(Math.round(screenW * 0.95), Math.round(GAME_HEIGHT * 2.5));
+    GAME_WIDTH = Math.min(Math.round(screenW * 0.95), Math.round(GAME_HEIGHT * 2.3));
     scale = Math.max(screenW / GAME_WIDTH, screenH / GAME_HEIGHT);
     cssW = GAME_WIDTH * scale;
     cssH = GAME_HEIGHT * scale;
