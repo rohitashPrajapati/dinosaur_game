@@ -4,6 +4,7 @@ kalamFont.load().then(function(loadedFace) {
   document.fonts.add(loadedFace);
 });
 import { showGlobalPopup } from './globalPopup.js';
+import { showSorryPopup, showCongratulationPopup } from './gamePopups.js';
 // Show info popup only on first load
 function maybeShowInfoPopup() {
   if (!localStorage.getItem('dinoGameInfoPopupShown')) {
@@ -615,7 +616,7 @@ function showGameOver() {
     fontSize = 70 * scaleRatio;
   }
   ctx.font = `${fontSize}px KalamBold, Kalam, Verdana, sans-serif`;
-  ctx.fillStyle = "#523232E6";
+  ctx.fillStyle = "grey";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   x = canvas.width / 2;
@@ -628,6 +629,26 @@ function showGameOver() {
   ctx.shadowOffsetY = 4 * scaleRatio;
   ctx.fillText("GAME OVER", x, y);
   ctx.restore();
+
+  // Show custom popup on game over
+  if (!window._popupShownForGameOver) {
+    window._popupShownForGameOver = true;
+    setTimeout(() => {
+      if (score.score >= 15000) {
+        showCongratulationPopup({
+          score: score.score,
+          discountText: 'We have added 1% discount to your account. Happy Shopping.',
+          onRestart: () => { window.location.reload(); },
+          onHome: () => { window.location.href = '/'; }
+        });
+      } else {
+        showSorryPopup({
+          onRestart: () => { window.location.reload(); },
+          onHome: () => { window.location.href = '/'; }
+        });
+      }
+    }, 600);
+  }
 }
 
 function setupGameReset() {
@@ -663,6 +684,7 @@ function reset() {
   waterDitchSpawnDistance = 6000 * scaleRatio;
   lastDitchSpawnDistance = 0;
   totalDistanceTravelled = 0;
+  window._popupShownForGameOver = false;
 }
 
 function showStartGameText() {

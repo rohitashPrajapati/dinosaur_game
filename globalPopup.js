@@ -13,13 +13,13 @@ function showGlobalPopup({
   animationIn = 'scale',
   animationOut = 'scale',
   disableClose = false,
-  scaleRatio = (window && window.scaleRatio) ? window.scaleRatio : 1
+  scaleRatio = (window && window.scaleRatio) ? window.scaleRatio : 1,
+  messagePosition = { top: '40%', left: '55%', transform: 'translate(-50%, -50%)', width: '70%' }
 } = {}) {
   if (globalPopupActive) return;
   globalPopupActive = true;
 
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 700;
-
   // Overlay
   const overlay = document.createElement('div');
   overlay.id = 'global-popup-overlay';
@@ -40,7 +40,7 @@ function showGlobalPopup({
   const popup = document.createElement('div');
   popup.style.position = 'relative';
   popup.style.display = 'flex';
-  popup.style.flexDirection = 'column';
+    // ...existing code...
   popup.style.alignItems = 'center';
   popup.style.justifyContent = 'center';
   popup.style.background = 'none';
@@ -73,10 +73,6 @@ function showGlobalPopup({
   const msg = document.createElement('div');
   msg.innerHTML = message;
   msg.style.position = 'absolute';
-  msg.style.top = '40%';
-  msg.style.left = '55%';
-  msg.style.transform = 'translate(-50%, -50%)';
-  msg.style.width = '70%';
   msg.style.textAlign = 'center';
   msg.style.fontSize = (1.25 * 2 * scaleRatio) + 'rem';
   msg.style.color = '#333';
@@ -85,46 +81,55 @@ function showGlobalPopup({
   msg.style.pointerEvents = 'none';
   msg.style.userSelect = 'none';
   msg.style.zIndex = 2;
+  // Always apply messagePosition after all other style assignments
+  msg.style.top = messagePosition.top || '40%';
+  msg.style.left = messagePosition.left || '55%';
+  msg.style.transform = messagePosition.transform || 'translate(-50%, -50%)';
+  msg.style.width = messagePosition.width || '70%';
 
-  // Resume/play button
-  const btn = document.createElement('img');
-  btn.src = buttonImg;
-  btn.alt = buttonLabel || 'Resume';
-  btn.style.width = (isMobile ?  65 * scaleRatio : 77 * scaleRatio) + 'px';
-  btn.style.height = (isMobile ? 65 * scaleRatio : 77 * scaleRatio) + 'px';
-  btn.style.objectFit = 'contain';
-  btn.style.display = 'block';
-  btn.style.margin = '0 auto';
-  btn.style.position = 'absolute';
-  btn.style.left = '55%';
-  // Set button bottom position conditionally for mobile view
-  btn.style.bottom = isMobile ? '60px' : '40px';
-  btn.style.transform = 'translateX(-50%)';
-  btn.style.cursor = 'pointer';
-  btn.style.zIndex = 3;
-  btn.style.transition = 'transform 0.2s';
-  btn.addEventListener('mousedown', () => btn.style.transform = 'translateX(-50%) scale(0.92)');
-  btn.addEventListener('mouseup', () => btn.style.transform = 'translateX(-50%)');
-  btn.addEventListener('mouseleave', () => btn.style.transform = 'translateX(-50%)');
-  btn.addEventListener('touchstart', () => btn.style.transform = 'translateX(-50%) scale(0.92)');
-  btn.addEventListener('touchend', () => btn.style.transform = 'translateX(-50%)');
 
-  // Hide popup on button click
-  btn.onclick = () => {
-    if (typeof onResume === 'function') onResume();
-    popup.style.transform = 'scale(0.7)';
-    overlay.style.opacity = '0';
-    setTimeout(() => {
-      overlay.remove();
-      globalPopupActive = false;
-      if (typeof onClose === 'function') onClose();
-    }, 350);
-  };
+  // Only create and append the default resume/play button if buttonImg is not empty
+  let btn = null;
+  if (buttonImg) {
+    btn = document.createElement('img');
+    btn.src = buttonImg;
+    btn.alt = buttonLabel || 'Resume';
+    btn.style.width = (isMobile ?  65 * scaleRatio : 77 * scaleRatio) + 'px';
+    btn.style.height = (isMobile ? 65 * scaleRatio : 77 * scaleRatio) + 'px';
+    msg.style.top = messagePosition.top || '40%';
+    msg.style.left = messagePosition.left || '55%';
+    msg.style.transform = messagePosition.transform || 'translate(-50%, -50%)';
+    msg.style.width = messagePosition.width || '70%';
+    btn.style.left = '55%';
+    // Set button bottom position conditionally for mobile view
+    btn.style.bottom = isMobile ? '60px' : '40px';
+    btn.style.transform = 'translateX(-50%)';
+    btn.style.cursor = 'pointer';
+    btn.style.zIndex = 3;
+    btn.style.transition = 'transform 0.2s';
+    btn.addEventListener('mousedown', () => btn.style.transform = 'translateX(-50%) scale(0.92)');
+    btn.addEventListener('mouseup', () => btn.style.transform = 'translateX(-50%)');
+    btn.addEventListener('mouseleave', () => btn.style.transform = 'translateX(-50%)');
+    btn.addEventListener('touchstart', () => btn.style.transform = 'translateX(-50%) scale(0.92)');
+    btn.addEventListener('touchend', () => btn.style.transform = 'translateX(-50%)');
+
+    // Hide popup on button click
+    btn.onclick = () => {
+      if (typeof onResume === 'function') onResume();
+      popup.style.transform = 'scale(0.7)';
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.remove();
+        globalPopupActive = false;
+        if (typeof onClose === 'function') onClose();
+      }, 350);
+    };
+  }
 
   // Structure
   popup.appendChild(banner);
   popup.appendChild(msg);
-  popup.appendChild(btn);
+  if (btn) popup.appendChild(btn);
   popup.style.width = banner.style.width;
   popup.style.height = banner.style.height;
   popup.style.minHeight = (180 * 2 * scaleRatio) + 'px';
