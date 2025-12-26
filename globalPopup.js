@@ -6,6 +6,7 @@ let globalPopupActive = false;
 function showGlobalPopup({
   message = '',
   onClose = null,
+  onResume = null, // custom action for resume button
   bannerImg = 'images/info_banner-min.png',
   buttonImg = 'images/play_button-min.png',
   buttonLabel = '',
@@ -110,6 +111,7 @@ function showGlobalPopup({
 
   // Hide popup on button click
   btn.onclick = () => {
+    if (typeof onResume === 'function') onResume();
     popup.style.transform = 'scale(0.7)';
     overlay.style.opacity = '0';
     setTimeout(() => {

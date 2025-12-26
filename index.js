@@ -1,3 +1,8 @@
+// Load Kalam-Bold font for GameOver text
+const kalamFont = new FontFace('KalamBold', 'url(font/Kalam-Bold.ttf)');
+kalamFont.load().then(function(loadedFace) {
+  document.fonts.add(loadedFace);
+});
 import { showGlobalPopup } from './globalPopup.js';
 // Show info popup only on first load
 function maybeShowInfoPopup() {
@@ -11,19 +16,23 @@ function maybeShowInfoPopup() {
     const subFontBase = isMobile ? 1.55 : 2.0;
     const mainFontSize = (mainFontBase * Math.max(0.7, Math.min(scaleRatio, 1.15))).toFixed(2) + 'rem';
     const subFontSize = (subFontBase * Math.max(0.7, Math.min(scaleRatio, 1.15))).toFixed(2) + 'rem';
-    showGlobalPopup({
-      message: `
-        <div style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: ${mainFontSize}; color: #523232; font-weight: bold; text-shadow: 2px 2px 0 #FFB30080, 0 2px 8px #fff, 0 1px 0 #fff; margin-bottom: 0.7em;">
-          Tap to jump. Collect mithai to<br>unlock real discounts.
-        </div>
-        <div style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: ${subFontSize}; color: #A7BE25; font-weight: bold; margin-top: 0.5em;">
-          1% off every 15000 points. Upto 5%
-        </div>
-      `,
-      onClose: () => {
-        localStorage.setItem('dinoGameInfoPopupShown', '1');
-      }
-    });
+      showGlobalPopup({
+        message: `
+          <div style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: ${mainFontSize}; color: #4b2e1e; font-weight: bold; text-shadow: 3px 3px 0 #ffd966, 0 2px 8px #fff, 0 1px 0 #fff; margin-bottom: 0.7em;">
+            Tap to jump. Collect mithai to<br>unlock real discounts.
+          </div>
+          <div style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: ${subFontSize}; color: #8bc34a; font-weight: bold; text-shadow: 2px 2px 0 #fffbe7, 0 2px 8px #fff, 0 1px 0 #fff; margin-top: 0.5em;">
+            1% off every 15000 points. Upto 5%
+          </div>
+        `,
+        onResume: () => {
+          // Start the game: remove waitingToStart and trigger first frame
+          window.waitingToStart = false;
+        },
+        onClose: () => {
+          localStorage.setItem('dinoGameInfoPopupShown', '1');
+        }
+      });
   }
 }
 
@@ -599,24 +608,26 @@ function getScaleRatio() {
 
 function showGameOver() {
   let fontSize, x, y;
+  // Always center the Game Over text in the canvas
   if (IS_MOBILE_LANDSCAPE) {
     fontSize = 32 * scaleRatio;
-    ctx.font = `${fontSize}px Verdana`;
-    ctx.fillStyle = "grey";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    x = canvas.width / 2;
-    y = canvas.height / 2;
   } else {
     fontSize = 70 * scaleRatio;
-    ctx.font = `${fontSize}px Verdana`;
-    ctx.fillStyle = "grey";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "alphabetic";
-    x = canvas.width / 4.5;
-    y = canvas.height / 2;
   }
+  ctx.font = `${fontSize}px KalamBold, Kalam, Verdana, sans-serif`;
+  ctx.fillStyle = "#523232E6";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  x = canvas.width / 2;
+  y = canvas.height / 2;
+  // Add text shadow for Game Over
+  ctx.save();
+  ctx.shadowColor = "#FFB30080";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 4 * scaleRatio;
+  ctx.shadowOffsetY = 4 * scaleRatio;
   ctx.fillText("GAME OVER", x, y);
+  ctx.restore();
 }
 
 function setupGameReset() {
