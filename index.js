@@ -1,3 +1,35 @@
+import { showGlobalPopup } from './globalPopup.js';
+// Show info popup only on first load
+function maybeShowInfoPopup() {
+  if (!localStorage.getItem('dinoGameInfoPopupShown')) {
+    // Use scaleRatio for font size
+    const scaleRatio = (window && window.scaleRatio) ? window.scaleRatio : 1;
+    // Detect mobile view
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 700;
+    // Reduce font size more aggressively on mobile
+    const mainFontBase = isMobile ? 1.85 : 2.4;
+    const subFontBase = isMobile ? 1.55 : 2.0;
+    const mainFontSize = (mainFontBase * Math.max(0.7, Math.min(scaleRatio, 1.15))).toFixed(2) + 'rem';
+    const subFontSize = (subFontBase * Math.max(0.7, Math.min(scaleRatio, 1.15))).toFixed(2) + 'rem';
+    showGlobalPopup({
+      message: `
+        <div style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: ${mainFontSize}; color: #523232; font-weight: bold; text-shadow: 2px 2px 0 #FFB30080, 0 2px 8px #fff, 0 1px 0 #fff; margin-bottom: 0.7em;">
+          Tap to jump. Collect mithai to<br>unlock real discounts.
+        </div>
+        <div style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: ${subFontSize}; color: #A7BE25; font-weight: bold; margin-top: 0.5em;">
+          1% off every 15000 points. Upto 5%
+        </div>
+      `,
+      onClose: () => {
+        localStorage.setItem('dinoGameInfoPopupShown', '1');
+      }
+    });
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  maybeShowInfoPopup();
+});
 import Player from "./Player.js";
 import { showSweetPop } from "./sweetPop.js";
 import Ground from "./Ground.js";
