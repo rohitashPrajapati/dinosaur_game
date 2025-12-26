@@ -870,7 +870,7 @@ function gameLoop(currentTime) {
         }
       }
       if (canSpawn) {
-        waterDitches.push(new WaterDitch(ditchX, groundY, IS_MOBILE_LANDSCAPE));
+        waterDitches.push(new WaterDitch(ditchX, groundY, IS_MOBILE_LANDSCAPE, scaleRatio));
         lastDitchSpawnDistance = totalDistanceTravelled;
         waterDitchSpawnDistance = Math.random() * (WATERDITCH_MAX_DISTANCE - WATERDITCH_MIN_DISTANCE) + WATERDITCH_MIN_DISTANCE;
       }
@@ -1063,13 +1063,12 @@ function showImpactImage(x, y) {
   impactImg.style.transform = 'translate(-50%, -50%) scale(1.2)';
   impactImg.style.zIndex = 2000;
   impactImg.style.pointerEvents = 'none';
-  if (window.IS_MOBILE_LANDSCAPE) {
-    impactImg.style.width = '70px';
-    impactImg.style.height = '50px';
-  } else {
-    impactImg.style.width = '153px'; // 512/5
-    impactImg.style.height = '111px'; // 371/5
-  }
+  // Make oh_snap image scale with screen ratio
+  const baseWidth = 70 / 2; // px
+  const baseHeight = 50 / 2; // px
+  const ratio = (typeof scaleRatio !== 'undefined' && scaleRatio) ? scaleRatio : 1;
+  impactImg.style.width = (baseWidth * ratio) + 'px';
+  impactImg.style.height = (baseHeight * ratio) + 'px';
   impactImg.style.opacity = '1';
   document.body.appendChild(impactImg);
   setTimeout(() => {
