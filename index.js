@@ -470,7 +470,7 @@ function setScreen() {
     const screenW = window.innerWidth;
     const screenH = window.innerHeight;
     GAME_HEIGHT = ORIGINAL_GAME_HEIGHT;
-    GAME_WIDTH = Math.min(Math.round(screenW * 0.95), Math.round(GAME_HEIGHT * 2.3));
+    GAME_WIDTH = Math.min(Math.round(screenW * 0.95), Math.round(GAME_HEIGHT * 2.5));
     scale = Math.max(screenW / GAME_WIDTH, screenH / GAME_HEIGHT);
     cssW = GAME_WIDTH * scale;
     cssH = GAME_HEIGHT * scale;
@@ -505,12 +505,45 @@ function setScreen() {
   createSprites();
 }
 
-setScreen();
-//Use setTimeout on Safari mobile rotation otherwise works fine on desktop
-window.addEventListener("resize", () => setTimeout(setScreen, 500));
 
+function isAndroidChrome() {
+  return /Android/.test(navigator.userAgent) && /Chrome/.test(navigator.userAgent);
+}
+
+function fixMobileViewport() {
+  // Only apply window.innerHeight fix for Android Chrome
+  const container = document.getElementById('game-canvas-container');
+  if (isAndroidChrome()) {
+    if (container) {
+      container.style.height = window.innerHeight + 'px';
+      container.style.maxHeight = window.innerHeight + 'px';
+    }
+    if (canvas) {
+      canvas.style.height = window.innerHeight + 'px';
+      canvas.style.maxHeight = window.innerHeight + 'px';
+    }
+  } else {
+    // Reset to default for iOS and desktop
+    if (container) {
+      container.style.height = '';
+      container.style.maxHeight = '';
+    }
+    if (canvas) {
+      canvas.style.height = '';
+      canvas.style.maxHeight = '';
+    }
+  }
+}
+
+function setScreenWithMobileFix() {
+  fixMobileViewport();
+  setScreen();
+}
+
+setScreenWithMobileFix();
+window.addEventListener("resize", () => setTimeout(setScreenWithMobileFix, 500));
 if (screen.orientation) {
-  screen.orientation.addEventListener("change", setScreen);
+  screen.orientation.addEventListener("change", setScreenWithMobileFix);
 }
 
 function getScaleRatio() {
