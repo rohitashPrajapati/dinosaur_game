@@ -1,17 +1,12 @@
 class WaterDitch {
-  constructor(gameWidth, groundY, isMobileLandscape = false) {
-    // Increase ditch size in mobile landscape
-    let width = 81 * 6.7;
-    let height = 36 * 6.7;
-    if (isMobileLandscape) {
-      width = 81 * 6.0;
-      height = 36 * 6.0;
-    }
-    this.width = width;
-    this.height = height;
+  constructor(gameWidth, groundY, isMobileLandscape = false, scaleRatio = 1) {
+    // Use scaleRatio for dynamic sizing
+    const BASE_WIDTH = 81 * 1.5;
+    const BASE_HEIGHT = 36 * 1.5;
+    this.width = BASE_WIDTH * scaleRatio;
+    this.height = BASE_HEIGHT * scaleRatio;
     this.x = gameWidth;
-    // this.y = groundY - this.height + 5; // align with ground
-    this.y = groundY - (isMobileLandscape ? 115 : 132); // align with ground
+    this.y = groundY - this.height + 24 * scaleRatio; // align with ground
     this.image = new Image();
     this.image.src = 'images/waterpit.png';
     this.passed = false;

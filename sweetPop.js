@@ -10,7 +10,7 @@ const SWEET_POP_IMAGES = [
 
 let sweetPopTimeout = null;
 
-function showSweetPop(x = null, y = null) {
+function showSweetPop(x = null, y = null, scaleRatio = 1) {
   // Remove if already present
   let pop = document.getElementById("sweet-pop");
   if (pop) pop.remove();
@@ -31,16 +31,15 @@ function showSweetPop(x = null, y = null) {
   img.style.opacity = "0";
   img.style.zIndex = 1000;
   // Add here:
-  if (window.IS_MOBILE_LANDSCAPE) {
-    img.onload = () => {
-      const aspect = img.naturalWidth / img.naturalHeight;
-      img.style.width = 0.8 * window.innerHeight * aspect + "px";
-      img.style.height = 0.8 * window.innerHeight + "px";
-    };
-  } else {
-    img.style.width = "120px";
-    img.style.height = "auto";
-  }
+  // Use scaleRatio for dynamic sizing
+  // Use passed scaleRatio for dynamic sizing
+  img.onload = () => {
+    const baseWidth = 22;
+    const baseHeight = 22;
+    const aspect = img.naturalWidth / img.naturalHeight;
+    img.style.width = (baseWidth * scaleRatio * aspect) + "px";
+    img.style.height = (baseHeight * scaleRatio) + "px";
+  };
   document.body.appendChild(img);
 
   // Animate pop in
