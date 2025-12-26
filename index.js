@@ -975,7 +975,7 @@ function gameLoop(currentTime) {
           const rect = canvas.getBoundingClientRect();
           const screenX = rect.left + avgX * (rect.width / canvas.width);
           const screenY = rect.top + avgY * (rect.height / canvas.height);
-          showSweetPop(screenX, screenY);
+          showSweetPop(screenX, screenY, scaleRatio);
         }
         window.sweetsCollected = [];
       }
