@@ -610,46 +610,22 @@ function getScaleRatio() {
 }
 
 function showGameOver() {
-  let fontSize, x, y;
-  // Always center the Game Over text in the canvas
-  if (IS_MOBILE_LANDSCAPE) {
-    fontSize = 32 * scaleRatio;
-  } else {
-    fontSize = 70 * scaleRatio;
-  }
-  ctx.font = `${fontSize}px KalamBold, Kalam, Verdana, sans-serif`;
-  ctx.fillStyle = "grey";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  x = canvas.width / 2;
-  y = canvas.height / 2;
-  // Add text shadow for Game Over
-  ctx.save();
-  ctx.shadowColor = "#FFB30080";
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetX = 4 * scaleRatio;
-  ctx.shadowOffsetY = 4 * scaleRatio;
-  ctx.fillText("GAME OVER", x, y);
-  ctx.restore();
-
-  // Show custom popup on game over
+  // Instantly show only the congratulation or sorry popup at game over
   if (!window._popupShownForGameOver) {
     window._popupShownForGameOver = true;
-    setTimeout(() => {
-      if (score.score >= 15000) {
-        showCongratulationPopup({
-          score: score.score,
-          discountText: 'We have added 1% discount to your account. Happy Shopping.',
-          onRestart: () => { window.location.reload(); },
-          onHome: () => { window.location.href = '/'; }
-        });
-      } else {
-        showSorryPopup({
-          onRestart: () => { window.location.reload(); },
-          onHome: () => { window.location.href = '/'; }
-        });
-      }
-    }, 600);
+    if (score.score >= 15000) {
+      showCongratulationPopup({
+        score: score.score,
+        discountText: 'We have added 1% discount to your account. Happy Shopping.',
+        onRestart: () => { window.location.reload(); },
+        onHome: () => { window.location.href = '/'; }
+      });
+    } else {
+      showSorryPopup({
+        onRestart: () => { window.location.reload(); },
+        onHome: () => { window.location.href = '/'; }
+      });
+    }
   }
 }
 
