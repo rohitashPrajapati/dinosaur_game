@@ -26,6 +26,8 @@ function maybeShowInfoPopup() {
             1% off every 15000 points. Upto 5%
           </div>
         `,
+        messagePosition: { top: '43%', left: '55%', transform: 'translate(-50%, -50%)', width: '70%' },
+        buttonPosition: { left: '52%', bottom: isMobile ? '55px' : '32px', transform: 'translateX(-50%)' },
         onResume: () => {
           // Start the game: remove waitingToStart and trigger first frame
           window.waitingToStart = false;

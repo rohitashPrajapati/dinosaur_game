@@ -14,7 +14,8 @@ function showGlobalPopup({
   animationOut = 'scale',
   disableClose = false,
   scaleRatio = (window && window.scaleRatio) ? window.scaleRatio : 1,
-  messagePosition = { top: '40%', left: '55%', transform: 'translate(-50%, -50%)', width: '70%' }
+  messagePosition = { top: '40%', left: '55%', transform: 'translate(-50%, -50%)', width: '70%' },
+  buttonPosition = null
 } = {}) {
   if (globalPopupActive) return;
   globalPopupActive = true;
@@ -96,22 +97,27 @@ function showGlobalPopup({
     btn.alt = buttonLabel || 'Resume';
     btn.style.width = (isMobile ?  65 * scaleRatio : 77 * scaleRatio) + 'px';
     btn.style.height = (isMobile ? 65 * scaleRatio : 77 * scaleRatio) + 'px';
-    msg.style.top = messagePosition.top || '40%';
-    msg.style.left = messagePosition.left || '55%';
-    msg.style.transform = messagePosition.transform || 'translate(-50%, -50%)';
-    msg.style.width = messagePosition.width || '70%';
-    btn.style.left = '55%';
-    // Set button bottom position conditionally for mobile view
-    btn.style.bottom = isMobile ? '60px' : '40px';
-    btn.style.transform = 'translateX(-50%)';
+    // Apply custom button position if provided
+    if (buttonPosition) {
+      if (buttonPosition.left) btn.style.left = buttonPosition.left;
+      if (buttonPosition.right) btn.style.right = buttonPosition.right;
+      if (buttonPosition.top) btn.style.top = buttonPosition.top;
+      if (buttonPosition.bottom) btn.style.bottom = buttonPosition.bottom;
+      if (buttonPosition.transform) btn.style.transform = buttonPosition.transform;
+    } else {
+      btn.style.left = '55%';
+      btn.style.bottom = isMobile ? '60px' : '40px';
+      btn.style.transform = 'translateX(-50%)';
+    }
+    btn.style.position = 'absolute';
     btn.style.cursor = 'pointer';
     btn.style.zIndex = 3;
     btn.style.transition = 'transform 0.2s';
-    btn.addEventListener('mousedown', () => btn.style.transform = 'translateX(-50%) scale(0.92)');
-    btn.addEventListener('mouseup', () => btn.style.transform = 'translateX(-50%)');
-    btn.addEventListener('mouseleave', () => btn.style.transform = 'translateX(-50%)');
-    btn.addEventListener('touchstart', () => btn.style.transform = 'translateX(-50%) scale(0.92)');
-    btn.addEventListener('touchend', () => btn.style.transform = 'translateX(-50%)');
+    btn.addEventListener('mousedown', () => btn.style.transform = (buttonPosition && buttonPosition.transform ? buttonPosition.transform + ' scale(0.92)' : 'translateX(-50%) scale(0.92)'));
+    btn.addEventListener('mouseup', () => btn.style.transform = buttonPosition && buttonPosition.transform ? buttonPosition.transform : 'translateX(-50%)');
+    btn.addEventListener('mouseleave', () => btn.style.transform = buttonPosition && buttonPosition.transform ? buttonPosition.transform : 'translateX(-50%)');
+    btn.addEventListener('touchstart', () => btn.style.transform = (buttonPosition && buttonPosition.transform ? buttonPosition.transform + ' scale(0.92)' : 'translateX(-50%) scale(0.92)'));
+    btn.addEventListener('touchend', () => btn.style.transform = buttonPosition && buttonPosition.transform ? buttonPosition.transform : 'translateX(-50%)');
 
     // Hide popup on button click
     btn.onclick = () => {
