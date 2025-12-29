@@ -1,7 +1,7 @@
 // globalPopup.js
 // Provides a reusable global popup overlay for the game
 
-let globalPopupActive = false;
+window.globalPopupActive = false;
 
 function showGlobalPopup({
   message = '',
@@ -17,8 +17,8 @@ function showGlobalPopup({
   messagePosition = { top: '40%', left: '55%', transform: 'translate(-50%, -50%)', width: '70%' },
   buttonPosition = null
 } = {}) {
-  if (globalPopupActive) return;
-  globalPopupActive = true;
+  if (window.globalPopupActive) return;
+  window.globalPopupActive = true;
 
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 700;
   // Overlay
@@ -126,7 +126,7 @@ function showGlobalPopup({
       overlay.style.opacity = '0';
       setTimeout(() => {
         overlay.remove();
-        globalPopupActive = false;
+        window.globalPopupActive = false;
         if (typeof onClose === 'function') onClose();
       }, 350);
     };

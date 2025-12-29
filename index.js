@@ -1,3 +1,12 @@
+// Allow space bar to start game after popup is removed
+window.addEventListener('keydown', function(e) {
+  if (window.globalPopupActive) return;
+  if ((e.code === 'Space' || e.key === ' ') && window.waitingToStart) {
+    window.waitingToStart = false;
+    waitingToStart = false;
+    e.preventDefault();
+  }
+});
 // Load Kalam-Bold font for GameOver text
 const kalamFont = new FontFace('KalamBold', 'url(font/Kalam-Bold.ttf)');
 kalamFont.load().then(function(loadedFace) {
@@ -641,6 +650,7 @@ function setupGameReset() {
 }
 
 function reset() {
+  if (window.globalPopupActive) return; // Block reset if popup is visible
   hasAddedEventListenersForRestart = false;
   gameOver = false;
   waitingToStart = false;
@@ -1181,5 +1191,11 @@ function showImpactImage(x, y) {
 
 requestAnimationFrame(gameLoop);
 
-window.addEventListener("keyup", reset, { once: true });
-window.addEventListener("touchstart", reset, { once: true });
+window.addEventListener("keyup", function(e) {
+  if (window.globalPopupActive) return;
+  reset(e);
+}, { once: true });
+window.addEventListener("touchstart", function(e) {
+  if (window.globalPopupActive) return;
+  reset(e);
+}, { once: true });

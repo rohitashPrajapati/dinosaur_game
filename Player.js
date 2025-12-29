@@ -174,7 +174,7 @@ export default class Player {
 
   touchstart = () => {
     // Only play jump sound if game is not waiting to start
-    if (typeof window.waitingToStart !== 'undefined' && !window.waitingToStart) {
+    if (typeof window.waitingToStart !== 'undefined' && !window.waitingToStart && !window.globalPopupActive) {
       if (!this.jumpPressed && !this.jumpInProgress && !this.falling) {
         try {
           import('./soundManager.js').then(({ default: soundManager }) => {
@@ -193,7 +193,7 @@ export default class Player {
   keydown = (event) => {
     if (event.code === "Space") {
       // Only play jump sound if game is not waiting to start
-      if (typeof window.waitingToStart !== 'undefined' && !window.waitingToStart) {
+      if (typeof window.waitingToStart !== 'undefined' && !window.waitingToStart && !window.globalPopupActive) {
         if (!this.jumpPressed && !this.jumpInProgress && !this.falling) {
           try {
             import('./soundManager.js').then(({ default: soundManager }) => {
