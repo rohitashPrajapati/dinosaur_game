@@ -552,6 +552,7 @@ function setScreen() {
   canvas.style.height = cssH + 'px';
   // Set scaleRatio for all game elements (includes DPR)
   scaleRatio = scale * dpr;
+  window.scaleRatio = scaleRatio;
   // Center the game area in the canvas
   ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
   ctx.translate((canvas.width - GAME_WIDTH * scaleRatio) / 2, (canvas.height - GAME_HEIGHT * scaleRatio) / 2);
@@ -622,7 +623,7 @@ function showGameOver() {
   // Instantly show only the congratulation or sorry popup at game over
   if (!window._popupShownForGameOver) {
     window._popupShownForGameOver = true;
-    if (score.score >= 3500) {
+    if (score.score >= 5500) {
       showCongratulationPopup({
         score: score.score,
         discountText: 'We have added 1% discount to your account. Happy Shopping.',
