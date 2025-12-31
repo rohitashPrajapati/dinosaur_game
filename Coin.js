@@ -51,7 +51,6 @@ class Coin {
           this.height = 0;
           this.image.onload = () => {
             const aspect = this.image.naturalWidth / this.image.naturalHeight;
-            console.log("Sweet image aspect:", aspect);
             this.width = sweetSize * aspect;
             this.height = sweetSize;
             this._imageReady = true;
@@ -60,7 +59,6 @@ class Coin {
         } else {
           this.width = sweetSize;
           this.height = sweetSize;
-          console.log("Sweet image size:", this.width, this.height);
           this._imageReady = true;
         }
       }
