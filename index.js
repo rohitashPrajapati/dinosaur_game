@@ -622,7 +622,7 @@ function showGameOver() {
   // Instantly show only the congratulation or sorry popup at game over
   if (!window._popupShownForGameOver) {
     window._popupShownForGameOver = true;
-    if (score.score >= 15000) {
+    if (score.score >= 3500) {
       showCongratulationPopup({
         score: score.score,
         discountText: 'We have added 1% discount to your account. Happy Shopping.',

@@ -4,13 +4,14 @@
 import { showGlobalPopup } from './globalPopup.js';
 
 function showSorryPopup({ onRestart, onHome }) {
-  // Reduce size by 40%
+  // Use scaleRatio for all popup elements
   const scaleDown = 0.78;
+  const scaleRatio = ((window && window.scaleRatio) ? window.scaleRatio : 1) * scaleDown;
   showGlobalPopup({
     bannerImg: 'images/sorry_banner_image-min.png',
     message: `
-      <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; min-height: 180px; width: 100%;">
-        <div style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: ${2.5 * scaleDown}rem; color: #523232; font-weight: bold; text-shadow: 2px 2px 0 #FFB30080, 0 2px 8px #fff, 0 1px 0 #fff; text-align: center;">We hope it was fun.<br>Wanna try again?</div>
+      <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; min-height: ${180 * scaleRatio}px; width: 100%;">
+        <div style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: ${2.5 * scaleRatio}rem; color: #523232; font-weight: bold; text-shadow: 2px 2px 0 #FFB30080, 0 2px 8px #fff, 0 1px 0 #fff; text-align: center;">We hope it was fun.<br>Wanna try again?</div>
       </div>
     `,
     buttonImg: '', // No single resume button
@@ -18,7 +19,7 @@ function showSorryPopup({ onRestart, onHome }) {
     onClose: null,
     // Custom rendering for two buttons
     disableClose: true,
-    scaleRatio: ((window && window.scaleRatio) ? window.scaleRatio : 1) * scaleDown,
+    scaleRatio,
     messagePosition: { top: '55%', left: '50%', transform: 'translate(-50%, -50%)', width: '70%' }
   });
   setTimeout(() => {
@@ -28,9 +29,9 @@ function showSorryPopup({ onRestart, onHome }) {
       const btn = popup.querySelector('img[alt="Resume"]');
       if (btn) btn.remove();
       // Add restart and home buttons
-      const btnSize = 85 * scaleDown;
-      const btnMargin = 18 * scaleDown;
-      const btnBottom = 22 * scaleDown;
+      const btnSize = 85 * scaleRatio;
+      const btnMargin = 18 * scaleRatio;
+      const btnBottom = 22 * scaleRatio;
       const restartBtn = document.createElement('img');
       restartBtn.src = 'images/restart-min.png';
       restartBtn.alt = 'Restart';
@@ -96,63 +97,63 @@ function showCongratulationPopup({ score, discountText, onRestart, onHome }) {
      messagePosition: { top: '59%', left: '50%', transform: 'translate(-50%, -50%)', width: '70%' }
    });
     setTimeout(() => {
-        const popup = document.getElementById('global-popup-overlay')?.querySelector('div');
-        if (popup) {
-            // Remove default button if any
-            const btn = popup.querySelector('img[alt="Resume"]');
-            if (btn) btn.remove();
-            // Add restart and home buttons
-            const btnSize = 85 * scaleDown;
-            const btnMargin = 18 * scaleDown;
-            const btnBottom = 22 * scaleDown;
-            const restartBtn = document.createElement('img');
-            restartBtn.src = 'images/restart-min.png';
-            restartBtn.alt = 'Restart';
-            restartBtn.style.width = btnSize + 'px';
-            restartBtn.style.height = btnSize + 'px';
-            restartBtn.style.margin = `0 ${btnMargin}px`;
-            restartBtn.style.cursor = 'pointer';
-            restartBtn.style.position = 'absolute';
-            restartBtn.style.left = '40%';
-            restartBtn.style.bottom = btnBottom + 'px';
-            restartBtn.style.objectFit = 'contain';
-            // Add tap/click effect
-            ['mousedown', 'touchstart'].forEach(evt => restartBtn.addEventListener(evt, () => {
-              restartBtn.style.transform = 'scale(0.88)';
-              restartBtn.style.opacity = '0.7';
-            }));
-            ['mouseup', 'mouseleave', 'touchend', 'touchcancel'].forEach(evt => restartBtn.addEventListener(evt, () => {
-              restartBtn.style.transform = '';
-              restartBtn.style.opacity = '';
-            }));
-            restartBtn.onclick = () => { if (typeof onRestart === 'function') onRestart(); document.getElementById('global-popup-overlay')?.remove(); };
-
-            const homeBtn = document.createElement('img');
-            homeBtn.src = 'images/home-min.png';
-            homeBtn.alt = 'Home';
-            homeBtn.style.width = btnSize + 'px';
-            homeBtn.style.height = btnSize + 'px';
-            homeBtn.style.margin = `0 ${btnMargin}px`;
-            homeBtn.style.cursor = 'pointer';
-            homeBtn.style.position = 'absolute';
-            homeBtn.style.left = '50%';
-            homeBtn.style.bottom = btnBottom + 'px';
-            homeBtn.style.objectFit = 'contain';
-            // Add tap/click effect
-            ['mousedown', 'touchstart'].forEach(evt => homeBtn.addEventListener(evt, () => {
-              homeBtn.style.transform = 'scale(0.88)';
-              homeBtn.style.opacity = '0.7';
-            }));
-            ['mouseup', 'mouseleave', 'touchend', 'touchcancel'].forEach(evt => homeBtn.addEventListener(evt, () => {
-              homeBtn.style.transform = '';
-              homeBtn.style.opacity = '';
-            }));
-            homeBtn.onclick = () => { if (typeof onHome === 'function') onHome(); document.getElementById('global-popup-overlay')?.remove(); };
-
-            popup.appendChild(restartBtn);
-            popup.appendChild(homeBtn);
-        }
+      const popup = document.getElementById('global-popup-overlay')?.querySelector('div');
+      if (popup) {
+        // Remove default button if any
+        const btn = popup.querySelector('img[alt="Resume"]');
+        if (btn) btn.remove();
+        // Add restart and home buttons
+        const scaleRatio = (window && window.scaleRatio) ? window.scaleRatio : 1;
+        const btnSize = 70 * scaleRatio;
+        const btnMargin = 18 * scaleRatio;
+        const btnBottom = 22 * scaleRatio;
+        const restartBtn = document.createElement('img');
+        restartBtn.src = 'images/restart-min.png';
+        restartBtn.alt = 'Restart';
+        restartBtn.style.width = btnSize + 'px';
+        restartBtn.style.height = btnSize + 'px';
+        restartBtn.style.margin = `0 ${btnMargin}px`;
+        restartBtn.style.cursor = 'pointer';
+        restartBtn.style.position = 'absolute';
+        restartBtn.style.left = '40%';
+        restartBtn.style.bottom = btnBottom + 'px';
+        restartBtn.style.objectFit = 'contain';
+        // Add tap/click effect
+        ['mousedown', 'touchstart'].forEach(evt => restartBtn.addEventListener(evt, () => {
+          restartBtn.style.transform = 'scale(0.88)';
+          restartBtn.style.opacity = '0.7';
+        }));
+        ['mouseup', 'mouseleave', 'touchend', 'touchcancel'].forEach(evt => restartBtn.addEventListener(evt, () => {
+          restartBtn.style.transform = '';
+          restartBtn.style.opacity = '';
+        }));
+        restartBtn.onclick = () => { if (typeof onRestart === 'function') onRestart(); document.getElementById('global-popup-overlay')?.remove(); };
+        const homeBtn = document.createElement('img');
+        homeBtn.src = 'images/home-min.png';
+        homeBtn.alt = 'Home';
+        homeBtn.style.width = btnSize + 'px';
+        homeBtn.style.height = btnSize + 'px';
+        homeBtn.style.margin = `0 ${btnMargin}px`;
+        homeBtn.style.cursor = 'pointer';
+        homeBtn.style.position = 'absolute';
+        homeBtn.style.left = '50%';
+        homeBtn.style.bottom = btnBottom + 'px';
+        homeBtn.style.objectFit = 'contain';
+        // Add tap/click effect
+        ['mousedown', 'touchstart'].forEach(evt => homeBtn.addEventListener(evt, () => {
+          homeBtn.style.transform = 'scale(0.88)';
+          homeBtn.style.opacity = '0.7';
+        }));
+        ['mouseup', 'mouseleave', 'touchend', 'touchcancel'].forEach(evt => homeBtn.addEventListener(evt, () => {
+          homeBtn.style.transform = '';
+          homeBtn.style.opacity = '';
+        }));
+        homeBtn.onclick = () => { if (typeof onHome === 'function') onHome(); document.getElementById('global-popup-overlay')?.remove(); };
+        popup.appendChild(restartBtn);
+        popup.appendChild(homeBtn);
+      }
     }, 50);
 }
 
 export { showSorryPopup, showCongratulationPopup };
+
