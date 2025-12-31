@@ -5,7 +5,7 @@ import { showGlobalPopup } from './globalPopup.js';
 
 function showSorryPopup({ onRestart, onHome }) {
   // Use scaleRatio for all popup elements
-  const scaleDown = 0.78;
+  const scaleDown = 0.19;
   const scaleRatio = ((window && window.scaleRatio) ? window.scaleRatio : 1) * scaleDown;
   showGlobalPopup({
     bannerImg: 'images/sorry_banner_image-min.png',
@@ -84,18 +84,21 @@ function showSorryPopup({ onRestart, onHome }) {
 
 function showCongratulationPopup({ score, discountText, onRestart, onHome }) {
   // Reduce size by 40%
-  const scaleDown = 0.78;
-   showGlobalPopup({
-     bannerImg: 'images/success_banner_image-min.png',
-     message: `<div style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: 2.1rem; color: #523232; font-weight: bold; text-shadow: 2px 2px 0 #FFB30080, 0 2px 8px #fff, 0 1px 0 #fff; margin-bottom: 0.3em;">YOUR SCORE: ${Math.round(score).toLocaleString()}</div><div style="font-family: 'KalamBold', 'Kalam', 'Comic Sans MS', cursive; font-size: 1.5rem; color: #8bc34a; font-weight: bold; margin-bottom: 0.7em;">We have added 1% discount to your account. Happy Shopping.</div>`,
-     buttonImg: '', // No single resume button
-     onResume: null,
-     onClose: null,
-     // Custom rendering for two buttons
-     disableClose: true,
-     scaleRatio: ((window && window.scaleRatio) ? window.scaleRatio : 1) * scaleDown,
-     messagePosition: { top: '59%', left: '50%', transform: 'translate(-50%, -50%)', width: '70%' }
-   });
+  const scaleDown = 0.19;
+  const scaleRatio = ((window && window.scaleRatio) ? window.scaleRatio : 1) * scaleDown;
+  const mainFontSize = (2.2 * scaleRatio).toFixed(2) + 'rem';
+  const subFontSize = (1.6 * scaleRatio).toFixed(2) + 'rem';
+  showGlobalPopup({
+    bannerImg: 'images/success_banner_image-min.png',
+    message: `<div style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: ${mainFontSize}; color: #523232; font-weight: bold; text-shadow: 2px 2px 0 #FFB30080, 0 2px 8px #fff, 0 1px 0 #fff; margin-bottom: 0.3em;">YOUR SCORE: ${Math.round(score).toLocaleString()}</div><div style="font-family: 'KalamBold', 'Kalam', 'Comic Sans MS', cursive; font-size: ${subFontSize}; color: #8bc34a; font-weight: bold; margin-bottom: 0.7em;">We have added 1% discount to your account.<br>Happy Shopping.</div>`,
+    buttonImg: '', // No single resume button
+    onResume: null,
+    onClose: null,
+    // Custom rendering for two buttons
+    disableClose: true,
+    scaleRatio: scaleRatio,
+    messagePosition: { top: '59%', left: '50%', transform: 'translate(-50%, -50%)', width: '70%' }
+  });
     setTimeout(() => {
       const popup = document.getElementById('global-popup-overlay')?.querySelector('div');
       if (popup) {
@@ -103,8 +106,7 @@ function showCongratulationPopup({ score, discountText, onRestart, onHome }) {
         const btn = popup.querySelector('img[alt="Resume"]');
         if (btn) btn.remove();
         // Add restart and home buttons
-        const scaleRatio = (window && window.scaleRatio) ? window.scaleRatio : 1;
-        const btnSize = 70 * scaleRatio;
+        const btnSize = 85 * scaleRatio;
         const btnMargin = 18 * scaleRatio;
         const btnBottom = 22 * scaleRatio;
         const restartBtn = document.createElement('img');

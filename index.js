@@ -18,14 +18,15 @@ import { showSorryPopup, showCongratulationPopup } from './gamePopups.js';
 function maybeShowInfoPopup() {
   if (!localStorage.getItem('dinoGameInfoPopupShown')) {
     // Use scaleRatio for font size
-    const scaleRatio = (window && window.scaleRatio) ? window.scaleRatio : 1;
+    const scaleDown = 0.25;
+    const scaleRatio = ((window && window.scaleRatio) ? window.scaleRatio : 1) * scaleDown;
     // Detect mobile view
     const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 700;
-    // Reduce font size more aggressively on mobile
+    // Font size is now directly proportional to scaleRatio
     const mainFontBase = isMobile ? 1.85 : 2.4;
     const subFontBase = isMobile ? 1.55 : 2.0;
-    const mainFontSize = (mainFontBase * Math.max(0.7, Math.min(scaleRatio, 1.15))).toFixed(2) + 'rem';
-    const subFontSize = (subFontBase * Math.max(0.7, Math.min(scaleRatio, 1.15))).toFixed(2) + 'rem';
+    const mainFontSize = (mainFontBase * scaleRatio).toFixed(2) + 'rem';
+    const subFontSize = (subFontBase * scaleRatio).toFixed(2) + 'rem';
       showGlobalPopup({
         message: `
           <div style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: ${mainFontSize}; color: #4b2e1e; font-weight: bold; text-shadow: 3px 3px 0 #ffd966, 0 2px 8px #fff, 0 1px 0 #fff; margin-bottom: 0.7em;">
@@ -36,7 +37,14 @@ function maybeShowInfoPopup() {
           </div>
         `,
         messagePosition: { top: '43%', left: '55%', transform: 'translate(-50%, -50%)', width: '70%' },
-        buttonPosition: { left: '52%', bottom: isMobile ? '55px' : '32px', transform: 'translateX(-50%)' },
+        buttonPosition: {
+          left: '52%',
+          bottom: (isMobile
+            ? (55 * scaleRatio).toFixed(2) + 'px'
+            : (32 * scaleRatio).toFixed(2) + 'px'),
+          transform: 'translateX(-50%)'
+        },
+        scaleRatio: scaleRatio,
         onResume: () => {
           // Start the game: remove waitingToStart and trigger first frame
           window.waitingToStart = false;
