@@ -1195,7 +1195,14 @@ window.addEventListener("keyup", function(e) {
   if (window.globalPopupActive) return;
   reset(e);
 }, { once: true });
-window.addEventListener("touchstart", function(e) {
+
+function handleTouchStartToStart(e) {
   if (window.globalPopupActive) return;
-  reset(e);
-}, { once: true });
+  if (window.waitingToStart) {
+    window.waitingToStart = false;
+    waitingToStart = false;
+    e.preventDefault();
+  }
+}
+
+window.addEventListener("touchstart", handleTouchStartToStart);

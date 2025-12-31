@@ -19,7 +19,7 @@ export default class Player {
     diedAnimationPlaying = false;
     DIED_ANIMATION_TIMER = 60;
     diedAnimationTimer = this.DIED_ANIMATION_TIMER;
-  WALK_ANIMATION_TIMER = 28;
+  WALK_ANIMATION_TIMER = 26;
   walkAnimationTimer = this.WALK_ANIMATION_TIMER;
 
   dinoRunImages = [];
