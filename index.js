@@ -15,49 +15,85 @@ kalamFont.load().then(function(loadedFace) {
 import { showGlobalPopup } from './globalPopup.js';
 import { showSorryPopup, showCongratulationPopup } from './gamePopups.js';
 // Show info popup only on first load
+
 function maybeShowInfoPopup() {
-  if (!localStorage.getItem('dinoGameInfoPopupShown')) {
-    // Use scaleRatio for font size
-    const scaleDown = 0.25;
-    const scaleRatio = ((window && window.scaleRatio) ? window.scaleRatio : 1) * scaleDown;
-    // Detect mobile view
-    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 700;
-    // Font size is now directly proportional to scaleRatio
-    const mainFontBase = isMobile ? 1.85 : 2.4;
-    const subFontBase = isMobile ? 1.55 : 2.0;
-    const mainFontSize = (mainFontBase * scaleRatio).toFixed(2) + 'rem';
-    const subFontSize = (subFontBase * scaleRatio).toFixed(2) + 'rem';
-      showGlobalPopup({
-        message: `
-          <div style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: ${mainFontSize}; color: #4b2e1e; font-weight: bold; text-shadow: 3px 3px 0 #ffd966, 0 2px 8px #fff, 0 1px 0 #fff; margin-bottom: 0.7em;">
-            Tap to jump. Collect mithai to<br>unlock real discounts.
-          </div>
-          <div style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: ${subFontSize}; color: #8bc34a; font-weight: bold; text-shadow: 2px 2px 0 #fffbe7, 0 2px 8px #fff, 0 1px 0 #fff; margin-top: 0.5em;">
-            1% off every 15000 points. Upto 5%
-          </div>
-        `,
-        messagePosition: { top: '43%', left: '55%', transform: 'translate(-50%, -50%)', width: '70%' },
-        buttonPosition: {
-          left: '52%',
-          bottom: (isMobile
-            ? (55 * scaleRatio).toFixed(2) + 'px'
-            : (32 * scaleRatio).toFixed(2) + 'px'),
-          transform: 'translateX(-50%)'
-        },
-        scaleRatio: scaleRatio,
-        onResume: () => {
-          // Start the game: remove waitingToStart and trigger first frame
-          window.waitingToStart = false;
-        },
-        onClose: () => {
-          localStorage.setItem('dinoGameInfoPopupShown', '1');
-        }
-      });
+  if (localStorage.getItem('dinoGameInfoPopupShown')) return;
+  // Only show if rotate message is NOT visible
+  if (document.getElementById('rotate-message')) {
+    // Wait for rotate message to disappear, then show popup
+    const observer = new MutationObserver(() => {
+      if (!document.getElementById('rotate-message')) {
+        observer.disconnect();
+        actuallyShowInfoPopup();
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    return;
   }
+  actuallyShowInfoPopup();
 }
 
+function actuallyShowInfoPopup() {
+  if (localStorage.getItem('dinoGameInfoPopupShown')) return;
+  const scaleDown = 0.25;
+  const scaleRatio = ((window && window.scaleRatio) ? window.scaleRatio : 1) * scaleDown;
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 700;
+  const mainFontBase = isMobile ? 1.85 : 2.4;
+  const subFontBase = isMobile ? 1.55 : 2.0;
+  const mainFontSize = (mainFontBase * scaleRatio).toFixed(2) + 'rem';
+  const subFontSize = (subFontBase * scaleRatio).toFixed(2) + 'rem';
+  showGlobalPopup({
+    message: `
+      <div style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: ${mainFontSize}; color: #4b2e1e; font-weight: bold; text-shadow: 3px 3px 0 #ffd966, 0 2px 8px #fff, 0 1px 0 #fff; margin-bottom: 0.7em;">
+        Tap to jump. Collect mithai to<br>unlock real discounts.
+      </div>
+      <div style="font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: ${subFontSize}; color: #8bc34a; font-weight: bold; text-shadow: 2px 2px 0 #fffbe7, 0 2px 8px #fff, 0 1px 0 #fff; margin-top: 0.5em;">
+        1% off every 15000 points. Upto 5%
+      </div>
+    `,
+    messagePosition: { top: '43%', left: '55%', transform: 'translate(-50%, -50%)', width: '70%' },
+    buttonPosition: {
+      left: '52%',
+      bottom: (isMobile
+        ? (55 * scaleRatio).toFixed(2) + 'px'
+        : (32 * scaleRatio).toFixed(2) + 'px'),
+      transform: 'translateX(-50%)'
+    },
+    scaleRatio: scaleRatio,
+    onResume: () => {
+      window.waitingToStart = false;
+    },
+    onClose: () => {
+      localStorage.setItem('dinoGameInfoPopupShown', '1');
+    }
+  });
+}
+
+// Only show info popup after landscape check
 window.addEventListener('DOMContentLoaded', () => {
-  maybeShowInfoPopup();
+  // First, check if we need to show the rotate message
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 700;
+  if (isMobile && !window.matchMedia('(orientation: landscape)').matches) {
+    // Show rotate message, and defer info popup until landscape
+    showRotateMessage();
+    // Listen for landscape orientation
+    const landscapeCheck = () => {
+      if (window.matchMedia('(orientation: landscape)').matches) {
+        // Remove listeners
+        window.removeEventListener('orientationchange', landscapeCheck);
+        window.removeEventListener('resize', landscapeCheck);
+        // Show info popup after rotation message is gone
+        setTimeout(() => {
+          maybeShowInfoPopup();
+        }, 100); // slight delay to ensure message is removed
+      }
+    };
+    window.addEventListener('orientationchange', landscapeCheck);
+    window.addEventListener('resize', landscapeCheck);
+  } else {
+    // Already in landscape or not mobile, show info popup immediately
+    maybeShowInfoPopup();
+  }
 });
 import Player from "./Player.js";
 import { showSweetPop } from "./sweetPop.js";
