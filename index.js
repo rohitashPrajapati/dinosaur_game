@@ -39,10 +39,25 @@ function actuallyShowInfoPopup() {
   let scaleDown = 0.25;
   const width = window.innerWidth;
   const height = window.innerHeight;
-  if (width <= 800 && height <= 400 && width > height) {
-    scaleDown = 0.13;
-  } else if (width <= 900 && height <= 420 && width > height) {
-    scaleDown = 0.16;
+  // Device-specific tuning for iPhone only
+  const isIPhone = /iPhone/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  if (isIPhone) {
+    if (width === 844 && height === 390 && width > height) {
+      scaleDown = 0.15;
+    } else if (width === 896 && height === 414 && width > height) {
+      scaleDown = 0.22;
+    } else if (width <= 800 && height <= 400 && width > height) {
+      scaleDown = 0.20;
+    } else if (width <= 900 && height <= 420 && width > height) {
+      scaleDown = 0.16;
+    }
+  } else if (isAndroid) {
+    if (width <= 800 && height <= 400 && width > height) {
+      scaleDown = 0.11;
+    } else if (width <= 915 && height <= 420 && width > height) {
+      scaleDown = 0.13;
+    }
   }
   const scaleRatio = ((window && window.scaleRatio) ? window.scaleRatio : 1) * scaleDown;
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 700;
@@ -410,7 +425,7 @@ let totalDistanceTravelled = 0; // Track total ground distance travelled
 let IS_MOBILE_LANDSCAPE = false;
 function isMobileLandscape() {
   return /Mobi|Android/i.test(navigator.userAgent) && window.matchMedia(
-    '(orientation: landscape) and (max-width: 900px)'
+    '(orientation: landscape) and (max-width: 920px)'
   ).matches;
 }
 IS_MOBILE_LANDSCAPE = isMobileLandscape();
@@ -675,7 +690,7 @@ function showGameOver() {
   // Instantly show only the congratulation or sorry popup at game over
   if (!window._popupShownForGameOver) {
     window._popupShownForGameOver = true;
-    if (score.score >= 15000) {
+    if (score.score >= 5500) {
       showCongratulationPopup({
         score: score.score,
         discountText: 'We have added 1% discount to your account. Happy Shopping.',

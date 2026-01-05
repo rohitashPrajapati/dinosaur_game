@@ -9,12 +9,25 @@ function showSorryPopup({ onRestart, onHome }) {
   let scaleDown = 0.19;
   const width = window.innerWidth;
   const height = window.innerHeight;
-  // iPhone 12 Pro landscape: 844x390, or similar small landscape screens
-  // Further reduce for Android landscape (e.g., Galaxy S8+ 740x360)
-  if (width <= 800 && height <= 400 && width > height) {
-    scaleDown = 0.11;
-  } else if (width <= 900 && height <= 420 && width > height) {
-    scaleDown = 0.13;
+  // Device-specific tuning for iPhone only
+  const isIPhone = /iPhone/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  if (isIPhone) {
+    if (width === 844 && height === 390 && width > height) {
+      scaleDown = 0.14;
+    } else if (width === 896 && height === 414 && width > height) {
+      scaleDown = 0.19;
+    } else if (width <= 800 && height <= 400 && width > height) {
+      scaleDown = 0.18;
+    } else if (width <= 900 && height <= 420 && width > height) {
+      scaleDown = 0.13;
+    }
+  } else if (isAndroid) {
+    if (width <= 800 && height <= 400 && width > height) {
+      scaleDown = 0.11;
+    } else if (width <= 915 && height <= 420 && width > height) {
+      scaleDown = 0.12;
+    }
   }
   const scaleRatio = ((window && window.scaleRatio) ? window.scaleRatio : 1) * scaleDown;
   showGlobalPopup({
@@ -98,10 +111,25 @@ function showCongratulationPopup({ score, discountText, onRestart, onHome }) {
   let scaleDown = 0.19;
   const width = window.innerWidth;
   const height = window.innerHeight;
-  if (width <= 800 && height <= 400 && width > height) {
-    scaleDown = 0.11;
-  } else if (width <= 900 && height <= 420 && width > height) {
-    scaleDown = 0.13;
+  // Device-specific tuning for iPhone only
+  const isIPhone = /iPhone/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  if (isIPhone) {
+    if (width === 844 && height === 390 && width > height) {
+      scaleDown = 0.14;
+    } else if (width === 896 && height === 414 && width > height) {
+      scaleDown = 0.19;
+    } else if (width <= 800 && height <= 400 && width > height) {
+      scaleDown = 0.18;
+    } else if (width <= 900 && height <= 420 && width > height) {
+      scaleDown = 0.13;
+    }
+  } else if (isAndroid) {
+    if (width <= 800 && height <= 400 && width > height) {
+      scaleDown = 0.11;
+    } else if (width <= 915 && height <= 420 && width > height) {
+      scaleDown = 0.12;
+    }
   }
   const scaleRatio = ((window && window.scaleRatio) ? window.scaleRatio : 1) * scaleDown;
   const mainFontSize = (2.2 * scaleRatio).toFixed(2) + 'rem';
