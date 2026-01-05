@@ -35,7 +35,15 @@ function maybeShowInfoPopup() {
 
 function actuallyShowInfoPopup() {
   if (localStorage.getItem('dinoGameInfoPopupShown')) return;
-  const scaleDown = 0.25;
+  // Dynamically adjust scaleDown for small landscape screens (e.g., iPhone 12 Pro landscape)
+  let scaleDown = 0.25;
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  if (width <= 800 && height <= 400 && width > height) {
+    scaleDown = 0.13;
+  } else if (width <= 900 && height <= 420 && width > height) {
+    scaleDown = 0.16;
+  }
   const scaleRatio = ((window && window.scaleRatio) ? window.scaleRatio : 1) * scaleDown;
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 700;
   const mainFontBase = isMobile ? 1.85 : 2.4;

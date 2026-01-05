@@ -5,7 +5,17 @@ import { showGlobalPopup } from './globalPopup.js';
 
 function showSorryPopup({ onRestart, onHome }) {
   // Use scaleRatio for all popup elements
-  const scaleDown = 0.19;
+  // Dynamically adjust scaleDown for small landscape screens (e.g., iPhone 12 Pro landscape)
+  let scaleDown = 0.19;
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  // iPhone 12 Pro landscape: 844x390, or similar small landscape screens
+  // Further reduce for Android landscape (e.g., Galaxy S8+ 740x360)
+  if (width <= 800 && height <= 400 && width > height) {
+    scaleDown = 0.11;
+  } else if (width <= 900 && height <= 420 && width > height) {
+    scaleDown = 0.13;
+  }
   const scaleRatio = ((window && window.scaleRatio) ? window.scaleRatio : 1) * scaleDown;
   showGlobalPopup({
     bannerImg: 'images/sorry_banner_image-min.png',
@@ -84,7 +94,15 @@ function showSorryPopup({ onRestart, onHome }) {
 
 function showCongratulationPopup({ score, discountText, onRestart, onHome }) {
   // Reduce size by 40%
-  const scaleDown = 0.19;
+  // Dynamically adjust scaleDown for small landscape screens (e.g., iPhone 12 Pro landscape)
+  let scaleDown = 0.19;
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  if (width <= 800 && height <= 400 && width > height) {
+    scaleDown = 0.11;
+  } else if (width <= 900 && height <= 420 && width > height) {
+    scaleDown = 0.13;
+  }
   const scaleRatio = ((window && window.scaleRatio) ? window.scaleRatio : 1) * scaleDown;
   const mainFontSize = (2.2 * scaleRatio).toFixed(2) + 'rem';
   const subFontSize = (1.6 * scaleRatio).toFixed(2) + 'rem';
