@@ -24,11 +24,48 @@ function showGlobalPopup({
   // Overlay
   const overlay = document.createElement('div');
   overlay.id = 'global-popup-overlay';
-  overlay.style.position = 'fixed';
-  overlay.style.top = 0;
-  overlay.style.left = 0;
-  overlay.style.width = '100vw';
-  overlay.style.height = '100vh';
+  // On mobile, always use the visual viewport for popup overlay
+  const isMobileLandscape = isMobile && window.innerWidth > window.innerHeight;
+  if (isMobileLandscape) {
+    overlay.style.position = 'fixed';
+    function setOverlayToVisualViewport() {
+      const vvp = window.visualViewport;
+      if (vvp) {
+        overlay.style.top = vvp.offsetTop + 'px';
+        overlay.style.left = vvp.offsetLeft + 'px';
+        overlay.style.width = vvp.width + 'px';
+        overlay.style.height = vvp.height + 'px';
+      } else {
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = window.innerWidth + 'px';
+        overlay.style.height = window.innerHeight + 'px';
+      }
+    }
+    setOverlayToVisualViewport();
+    // Dynamically update overlay on viewport changes (e.g. browser bar show/hide)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', setOverlayToVisualViewport);
+      window.visualViewport.addEventListener('scroll', setOverlayToVisualViewport);
+      // Remove listeners when popup is closed
+      const cleanup = () => {
+        window.visualViewport.removeEventListener('resize', setOverlayToVisualViewport);
+        window.visualViewport.removeEventListener('scroll', setOverlayToVisualViewport);
+      };
+      // Patch overlay removal to cleanup listeners
+      const origRemove = overlay.remove.bind(overlay);
+      overlay.remove = function() { cleanup(); origRemove(); };
+    }
+    overlay.style.pointerEvents = 'auto';
+    document.body.appendChild(overlay);
+  } else {
+    overlay.style.position = 'fixed';
+    overlay.style.top = 0;
+    overlay.style.left = 0;
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    document.body.appendChild(overlay);
+  }
   overlay.style.background = 'rgba(0,0,0,0.20)';
   overlay.style.display = 'flex';
   overlay.style.alignItems = 'center';
@@ -146,7 +183,6 @@ function showGlobalPopup({
   popup.style.position = 'relative';
 
   overlay.appendChild(popup);
-  document.body.appendChild(overlay);
 
   // Animate in
   setTimeout(() => {
